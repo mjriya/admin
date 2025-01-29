@@ -59,7 +59,7 @@ const RichTextEditor = ({ content, htmlContentGrab }) => {
         </div>
       )}
       <Editor
-        apiKey="law1uqp4y0xd6pj3hmsamqg3q5a49mancjz9iqc0urv9anzs"
+        apiKey="sn6lxsksq77g8g2h3k1vgkocym73d8kf6zwkbaeinee2e4nx"
         onInit={(evt, editor) => {
           editorRef.current = editor;
           setIsEditorReady(true);
