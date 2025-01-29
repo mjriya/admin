@@ -59,7 +59,7 @@ const RichTextEditor = ({ content, htmlContentGrab }) => {
         </div>
       )}
       <Editor
-        apiKey={process.env.NEXT_PUBLIC_TINYMCE_API_KEY}
+        apiKey="law1uqp4y0xd6pj3hmsamqg3q5a49mancjz9iqc0urv9anzs"
         onInit={(evt, editor) => {
           editorRef.current = editor;
           setIsEditorReady(true);
