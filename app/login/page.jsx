@@ -1,24 +1,31 @@
 "use client";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Page = () => {
+  const router = useRouter();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotError, setForgotError] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError(null);
+
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/login`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
@@ -30,122 +37,139 @@ const Page = () => {
           secure: true,
           sameSite: "Strict",
         });
-        localStorage.setItem("role", JSON.stringify(data.user.roles));
-        localStorage.setItem("id", data.user.id);
-        window.location.href = "/";
+
+        localStorage.setItem(
+          "user",
+          JSON.stringify({ role: data.user.roles, id: data.user.id })
+        );
+
+        toast.success("Login successful!", { autoClose: 1500 });
+        setTimeout(() => router.push("/"), 1500);
       } else {
         setError(data.message || "Login failed");
+        toast.error(data.message || "Login failed");
       }
     } catch (err) {
       setError("An error occurred. Please try again later.");
+      toast.error("An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleForgotPassword = async (e) => {
     e.preventDefault();
+    setForgotError(null);
+
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/forgot-password`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email: forgotEmail }),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/user/forgot-password`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: forgotEmail }),
+        }
+      );
 
       const data = await res.json();
 
       if (res.ok) {
-        alert("Check your email for password reset instructions.");
+        toast.success("Check your email for reset instructions.");
         setShowForgotPassword(false);
-        
       } else {
         setForgotError(data.message || "Failed to send reset email.");
+        toast.error(data.message || "Failed to send reset email.");
       }
     } catch (err) {
       setForgotError("An error occurred. Please try again later.");
+      toast.error("An error occurred. Please try again.");
     }
   };
- 
 
   return (
-    <div className="min-h-screen fixed w-full start-0 z-50 bg-gradient-to-br from-gray-900 to-black text-white flex justify-center items-center p-4">
-      <div className="w-full max-w-md">
-        {/* Logo/Branding Section */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">
-            SportzPoint
-          </h1>
-          <p className="text-gray-400 mt-2">Admin Dashboard</p>
-        </div>
+    <div className="min-h-screen fixed w-full start-0 z-50 bg-gradient-to-br from-zinc-600 to-zinc-900 text-white flex justify-center items-center p-4 gap-10">
+      <ToastContainer />
+      
+      {/* Logo/Branding */}
+      <div className="text-center mb-8 ">
+        <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-600">
+          TrendVerse
+        </h1>
+        <p className="text-gray-300 mt-2">Discover Trends, Stories & More</p>
+        <h1 className="text-7xl mt-3" >😍</h1>
+      </div>
 
-        {/* Login Card */}
-        <div className="bg-gray-800/50 backdrop-blur-lg p-8 rounded-2xl shadow-xl border border-gray-700">
-          <h2 className="text-2xl font-bold text-center mb-6 text-gray-100">Welcome Back</h2>
-          {error && (
-            <div className="mb-6 p-4 rounded-lg bg-red-500/10 border border-red-500/50 text-red-500 text-sm text-center">
-              {error}
-            </div>
-          )}
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
-                Email Address
-              </label>
+      {/* Login Card */}
+      <div className="bg-zinc-800/10 backdrop-blur-lg p-8 rounded-2xl shadow-md w-1/4">
+        <h2 className="text-2xl font-bold text-center mb-6 text-gray-100">
+          Welcome Back 😊
+        </h2>
+
+        {error && (
+          <div
+            className="mb-6 p-4 rounded-lg bg-red-500/10 border border-red-500/50 text-red-500 text-sm text-center"
+            aria-live="polite"
+          >
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Email Address
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full px-4 py-3 rounded-lg border bg-gray-700/50 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter your email"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Password
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="w-full px-4 py-3 rounded-lg border bg-gray-700/50 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter your password"
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <label className="flex items-center space-x-2 text-sm text-gray-300">
               <input
-                type="email"
-                id="email"
-                name="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full px-4 py-3 rounded-lg border border-gray-600 bg-gray-700/50 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
-                placeholder="Enter your email"
+                type="checkbox"
+                checked={rememberMe}
+                onChange={() => setRememberMe(!rememberMe)}
+                className="w-4 h-4 rounded border-gray-600"
               />
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
-                Password
-              </label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full px-4 py-3 rounded-lg border border-gray-600 bg-gray-700/50 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
-                placeholder="Enter your password"
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <label className="flex items-center space-x-2 text-sm text-gray-300">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={() => setRememberMe(!rememberMe)}
-                  className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-blue-500 focus:ring-blue-500 focus:ring-offset-gray-800"
-                />
-                <span>Remember me</span>
-              </label>
-              <button
-                type="button"
-                onClick={() => setShowForgotPassword(true)}
-                className="text-sm text-blue-400 hover:text-blue-300 transition duration-200"
-              >
-                Forgot password?
-              </button>
-            </div>
-
+              <span>Remember me</span>
+            </label>
             <button
-              type="submit"
-              className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white rounded-lg font-medium transition duration-200 transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800"
+              type="button"
+              onClick={() => setShowForgotPassword(true)}
+              className="text-sm text-blue-400 hover:text-blue-300"
             >
-              Sign in
+              Forgot password?
             </button>
-          </form>
-        </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white rounded-lg font-medium transition"
+          >
+            {loading ? "Signing in..." : "Sign in"}
+          </button>
+        </form>
       </div>
 
       {/* Forgot Password Modal */}
@@ -153,37 +177,39 @@ const Page = () => {
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center p-4 z-50">
           <div className="w-full max-w-md bg-gray-800 p-8 rounded-2xl border border-gray-700 shadow-xl">
             <h3 className="text-2xl font-bold text-center mb-6">Reset Password</h3>
+
             {forgotError && (
               <div className="mb-6 p-4 rounded-lg bg-red-500/10 border border-red-500/50 text-red-500 text-sm text-center">
                 {forgotError}
               </div>
             )}
+
             <form onSubmit={handleForgotPassword} className="space-y-6">
               <div>
-                <label htmlFor="forgotEmail" className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
                   Email Address
                 </label>
                 <input
                   type="email"
-                  id="forgotEmail"
                   value={forgotEmail}
                   onChange={(e) => setForgotEmail(e.target.value)}
                   required
-                  className="w-full px-4 py-3 rounded-lg border border-gray-600 bg-gray-700/50 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                  className="w-full px-4 py-3 rounded-lg border bg-gray-700/50 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500"
                   placeholder="Enter your email"
                 />
               </div>
+
               <div className="flex justify-end space-x-4">
                 <button
                   type="button"
                   onClick={() => setShowForgotPassword(false)}
-                  className="px-6 py-2.5 border border-gray-600 text-gray-300 rounded-lg hover:bg-gray-700 transition duration-200"
+                  className="px-6 py-2.5 border text-gray-300 rounded-lg hover:bg-gray-700"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white rounded-lg font-medium transition duration-200"
+                  className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg font-medium"
                 >
                   Reset Password
                 </button>
