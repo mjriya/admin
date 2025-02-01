@@ -69,7 +69,7 @@ const SeoScoreModal = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md">
+    <>
       <div className="sticky top-0 bg-white border-b border-gray-100 shadow-sm z-20">
         <div className="flex items-center justify-between p-3">
           <h3 className="text-base font-semibold text-gray-800">Content Analysis</h3>
@@ -192,7 +192,7 @@ const SeoScoreModal = ({
           </ul>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
