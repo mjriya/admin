@@ -87,7 +87,7 @@ const Page = () => {
   };
 
   return (
-    <div className="min-h-screen fixed w-full start-0 z-50 bg-gradient-to-br from-zinc-600 to-zinc-900 text-white flex justify-center items-center p-4 gap-10">
+    <div className="min-h-screen fixed w-full start-0 z-50 bg-gradient-to-br from-zinc-600 to-zinc-900 text-white lg:flex justify-center items-center  gap-10">
       <ToastContainer />
       
       {/* Logo/Branding */}
@@ -96,11 +96,11 @@ const Page = () => {
           TrendVerse
         </h1>
         <p className="text-gray-300 mt-2">Discover Trends, Stories & More</p>
-        <h1 className="text-7xl mt-3" >😍</h1>
+        <h1 className="text-7xl" >😍</h1>
       </div>
 
       {/* Login Card */}
-      <div className="bg-zinc-800/10 backdrop-blur-lg p-8 rounded-2xl shadow-md w-1/4">
+      <div className="bg-zinc-800/10 backdrop-blur-lg p-8 rounded-2xl shadow-md w-1/4 lg:mr-10">
         <h2 className="text-2xl font-bold text-center mb-6 text-gray-100">
           Welcome Back 😊
         </h2>

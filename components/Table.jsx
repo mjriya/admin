@@ -325,8 +325,7 @@ export default function Table({ posts, type, onStatusChange, status }) {
                             </button>
                           )}
 
-                        {typeof window !== "undefined" &&
-                          JSON.parse(localStorage.getItem("role"))[0] === "Admin"&& (
+                       
                             <div className="bg-relative">
                               <button
                                 onClick={() => setPostId(article._id)}
@@ -343,7 +342,7 @@ export default function Table({ posts, type, onStatusChange, status }) {
                                 />
                               )}
                             </div>
-                          )}
+                          
                       </div>
                     </td>
                   </tr>
