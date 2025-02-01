@@ -19,19 +19,19 @@ const contentTypes = [
     name: 'Bengali',
     href: '/posts/bengali',
     icon: <RiArticleLine className="text-lg" />,
-    description: 'Create a new article post'
+    description: 'Create with Bengali font'
   },
   {
     name: 'Hindi',
     href: '/posts/hindi',
     icon: <CiVideoOn className="text-lg" />,
-    description: 'Upload a new video post'
+    description: 'Create with hindi font'
   },
   {
-    name: 'Tap Tap',
-    href: '/posts/wpstatus',
+    name: 'Sort Stories',
+    href: '/posts/stories',
     icon: <BsBook className="text-lg" />,
-    description: 'Create an engaging web story'
+    description: 'Create with stories'
   }
   
 ];
