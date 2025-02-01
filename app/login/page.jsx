@@ -96,7 +96,7 @@ const Page = () => {
           TrendVerse
         </h1>
         <p className="text-gray-300 mt-2">Discover Trends, Stories & More</p>
-        <h1 className="text-7xl" >😍</h1>
+        <h1 className="text-8xl" >😍</h1>
       </div>
 
       {/* Login Card */}

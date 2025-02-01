@@ -61,7 +61,6 @@ const ProfileModal = ({ isOpen, onClose, userData }) => {
           linkedin: data.data.social_profiles?.linkedin || "",
         }));
 
-        console.log("data", data, formData);
 
         // Update avatar preview
         if (data.data.profile_picture) {
