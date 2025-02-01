@@ -58,7 +58,7 @@ function ManagePostProperties({ type, id }) {
   const [formData, setFormData] = useState({
     primaryCategory: null,
     additionalCategories: [],
-    tags: [],
+    part: [],
     credits: [],
     focusKeyphrase: "",
   });
@@ -334,8 +334,8 @@ function ManagePostProperties({ type, id }) {
         author: authorId,
         slug: formDataPostEdit.slug.trim().toLowerCase().split(" ").join("-"),
         type:
-          pathname.split("/")[2] === "Web%20Story"
-            ? "Web Story"
+          pathname.split("/")[2] === "sort_stories"
+            ? "sort_stories"
             : pathname.split("/")[2],
         seo_desc: formDataPostEdit.seo_desc.trim(),
       };
@@ -352,7 +352,7 @@ function ManagePostProperties({ type, id }) {
         transformedData.published_at_datetime = null;
       }
 
-      if (pathname && pathname.split("/")[2] === "Web%20Story") {
+      if (pathname && pathname.split("/")[2] === "sort_stories") {
         transformedData.web_story = webStory;
       }
 
@@ -517,14 +517,14 @@ function ManagePostProperties({ type, id }) {
   const renderView = () => {
     return (
       <div className="flex gap-6">
-        <div className="w-[70%]">
-          <div className="space-y-6">
+        <div className="w-full">
+          <div className="w-full">
             <ArticlePostEditComponent
               handleArticleFromData={handleArticleFromData}
               formDataPostEdit={formDataPostEdit}
             />
 
-            {pathname.split("/")[2] === "Web%20Story" ? (
+            {pathname.split("/")[2] === "sort_stories" ? (
               <WebStoryEditor content={webStory} htmlJsonGrab={htmlJsonGrab} />
             ) : (
               <RichTextEditor
@@ -536,7 +536,7 @@ function ManagePostProperties({ type, id }) {
           </div>
         </div>
 
-        <div className="w-[30%]">
+        {/* <div className="w-[30%]">
           <div className="fixed w-[23%] top-[7rem] right-6 bottom-6 overflow-y-auto z-30">
             <SeoScoreModal
               content={htmlContent}
@@ -547,7 +547,7 @@ function ManagePostProperties({ type, id }) {
               formData={formData}
             />
           </div>
-        </div>
+        </div> */}
       </div>
     );
   };
