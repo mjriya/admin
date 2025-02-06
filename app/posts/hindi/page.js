@@ -8,28 +8,31 @@ import { usePathname, useSearchParams } from 'next/navigation';
 
 const Page = () => {
   const pathname = usePathname();  // Gets "/bengali"
-  const searchParams = useSearchParams();
-
-
+  const searchParams = useSearchParams(); 
+  
+  
   const { fetchAllPostedData, allPosts, totalPages, loading } = useAllPostDataStore();
   const [currentPage, setCurrentPage] = useState(1);
   const [status, setStatus] = useState('published'); // Default status
   const limit = 15;
-
+  
+  
   // Function to update data when status or page changes
   const fetchData = () => {
-
-    let url = `${process.env.NEXT_PUBLIC_API_URL}/posts/${status}?langue=bengali&limit=${limit}&page=${currentPage}&${searchParams}`;
     
-    fetchAllPostedData(url, 'bengali');
-
-
+    let url;
+    if(status==='pending-approval'){
+      url = `${process.env.NEXT_PUBLIC_API_URL}/posts/pending-approval/all?langue=hindi&limit=${limit}&page=${currentPage}&${searchParams}`;
+    }else{
+      url = `${process.env.NEXT_PUBLIC_API_URL}/posts/${status}?langue=hindi&limit=${limit}&page=${currentPage}&${searchParams}`;
+    }
+    fetchAllPostedData(url, 'hindi');
   };
 
   // useEffect hook ensures fetchData runs only on the client
   useEffect(() => {
     fetchData();
-  }, [currentPage, status, searchParams]);
+  }, [currentPage, status]);
 
   // Only execute scroll logic on the client
   const handlePageChange = (newPage) => {
@@ -45,12 +48,12 @@ const Page = () => {
   };
 
   return (
-    <div className=' min-h-screen'>
+    <div className='bg-gray-50 min-h-screen'>
       <div className='max-w-7xl mx-auto p-4'>
-        <div className=' rounded-lg shadow'>
+        <div className='bg-white rounded-lg shadow'>
           <TableHeader
-            type="Bengali"
-            currentPage={currentPage}
+ type="Hindi"           
+  currentPage={currentPage}
             loading={loading}
             totalPages={totalPages}
             onPageChange={handlePageChange}
@@ -59,12 +62,11 @@ const Page = () => {
             status={status} // Pass current status
           />
           <div className="overflow-x-auto">
-            <Table
-              posts={allPosts}
-              loading={loading}
-              type={'bengali'}
+            <Table 
+              posts={allPosts} 
+              loading={loading} 
+              type={'hindi'}
               status={status}
-              fetchData={fetchData}
               onStatusChange={handleStatusChange} // Optionally pass this to Table for status-specific actions
             />
           </div>

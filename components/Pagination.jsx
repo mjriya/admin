@@ -42,7 +42,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange, compact = true, loa
             disabled={loading}
             className={`w-8 h-8 rounded flex items-center justify-center ${
               currentPage === 1
-                ? 'bg-blue-500 text-white'
+                ? 'bg-yellow-50 text-yellow-800'
                 : loading
                 ? 'text-gray-300 cursor-not-allowed'
                 : 'text-gray-600 hover:bg-gray-100'
@@ -62,7 +62,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange, compact = true, loa
           disabled={loading}
           className={`w-8 h-8 rounded flex items-center justify-center ${
             currentPage === number
-              ? 'bg-blue-500 text-white'
+              ? 'bg-yellow-50 text-yellow-800 shadow'
               : loading
               ? 'text-gray-300 cursor-not-allowed'
               : 'text-gray-600 hover:bg-gray-100'
@@ -81,7 +81,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange, compact = true, loa
             disabled={loading}
             className={`w-8 h-8 rounded flex items-center justify-center ${
               currentPage === totalPages
-                ? 'bg-blue-500 text-white'
+                ? 'bg-yellow-500 text-white'
                 : loading
                 ? 'text-gray-300 cursor-not-allowed'
                 : 'text-gray-600 hover:bg-gray-100'

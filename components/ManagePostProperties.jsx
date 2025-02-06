@@ -6,15 +6,15 @@ import WebStoryEditor from "./WebStory";
 import { IoMdArrowBack } from "react-icons/io";
 import RestOfPostEdit from "./RestOfPostEdit";
 import ArticlePostEditComponent from "./ArticlePostEditComponent";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import useAllPostDataStore from "../store/useAllPostDataStore";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { validateSlug } from "../util/validateSlug";
-import SeoScoreModal from "./SeoScoreModal";
 
-function ManagePostProperties({ type, id }) {
+function ManagePostProperties() {
+  const searchParams = useSearchParams();
   const router = useRouter();
   const { allPosts, customisePostData } = useAllPostDataStore();
   const pathname = usePathname();
@@ -23,6 +23,7 @@ function ManagePostProperties({ type, id }) {
   const [webStory, setWebStory] = useState([]);
   const [chnageStatus, setChnageStatus] = useState("");
   const [publishAtTime, setPublishAtTime] = useState("");
+  const [type, setType] = useState("single");
 
   const [postedIdDraft, setPostedIdDraft] = useState(() => {
     const pathParts = pathname.split("/");
@@ -79,7 +80,7 @@ function ManagePostProperties({ type, id }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [edting, setEdting] = useState(false);
 
-  const useDebouncedSubmit = (delay = 900) => {
+  const useDebouncedSubmit = (delay = 2000) => {
     const debounceTimeout = useRef(null);
 
     const debounceSubmit = useCallback(
@@ -207,10 +208,11 @@ function ManagePostProperties({ type, id }) {
         if (!requiredData) {
           try {
             const data = await fetchDataById(
-              `${process.env.NEXT_PUBLIC_API_URL}/content/${id}`
+              `${process.env.NEXT_PUBLIC_API_URL}/content/${id}?${searchParams}`
             );
             if (data && data.article) {
               requiredData = data.article;
+
               setLive(data.article.isLive && data.article.isLive);
             } else {
               showToast("Data not found", { type: "error" });
@@ -229,6 +231,7 @@ function ManagePostProperties({ type, id }) {
             ? requiredData.published_at_datetime
             : requiredData.temp_published_at_datetime || new Date()
         );
+        setType(requiredData.type);
         setPost(requiredData);
         setHtmlContent(requiredData.content || "");
         setWebStory(requiredData.web_story || []);
@@ -309,10 +312,7 @@ function ManagePostProperties({ type, id }) {
           : [],
         title: formDataPostEdit.title.trim(),
         summary: formDataPostEdit.summary.trim(),
-        legacy_url:
-          pathname.split("/")[3] === "new-post"
-            ? formDataPostEdit.title.trim().toLowerCase().split(" ").join("-")
-            : formDataPostEdit.title.trim().toLowerCase().split(" ").join("-"),
+        type: type,
 
         live_blog_updates:
           pathname.split("/")[3] === "new-post" ? [] : post.live_blog_updates,
@@ -333,10 +333,7 @@ function ManagePostProperties({ type, id }) {
 
         author: authorId,
         slug: formDataPostEdit.slug.trim().toLowerCase().split(" ").join("-"),
-        type:
-          pathname.split("/")[2] === "sort_stories"
-            ? "sort_stories"
-            : pathname.split("/")[2],
+        langue: pathname.split("/")[2],
         seo_desc: formDataPostEdit.seo_desc.trim(),
       };
 
@@ -378,8 +375,12 @@ function ManagePostProperties({ type, id }) {
         }
 
         const apiUrl = isCreate
-          ? `${process.env.NEXT_PUBLIC_API_URL}/content/create`
-          : `${process.env.NEXT_PUBLIC_API_URL}/content/update/${postedIdDraft}`;
+          ? `${
+              process.env.NEXT_PUBLIC_API_URL
+            }/content/create?${searchParams.toString()}`
+          : `${
+              process.env.NEXT_PUBLIC_API_URL
+            }/content/update/${postedIdDraft}?${searchParams.toString()}`;
 
         const isAnyFieldNonEmpty = Object.entries(transformedData)
           .filter(
@@ -441,12 +442,14 @@ function ManagePostProperties({ type, id }) {
           }
 
           const apiUrl = isCreate
-            ? `${process.env.NEXT_PUBLIC_API_URL}/content/create`
+            ? `${
+                process.env.NEXT_PUBLIC_API_URL
+              }/content/create?${searchParams.toString()}`
             : `${process.env.NEXT_PUBLIC_API_URL}${
                 status === "published" || status === "update"
                   ? `/admin/post/publish/${postedIdDraft}`
                   : `/content/update/${postedIdDraft}`
-              }`;
+              }?${searchParams.toString()}`;
 
           const response = await fetch(apiUrl, {
             method: isCreate ? "POST" : "PUT",
@@ -478,8 +481,11 @@ function ManagePostProperties({ type, id }) {
             );
           }
           const uploadPostData = await response.json();
-          
-          if (uploadPostData.article.status === "published" && status==="published" ) {
+
+          if (
+            uploadPostData.article.status === "published" &&
+            status === "published"
+          ) {
             await fetch(`${process.env.NEXT_PUBLIC_API_URL}/send`, {
               method: "POST", // Specify the HTTP method
               headers: {
@@ -523,31 +529,59 @@ function ManagePostProperties({ type, id }) {
               handleArticleFromData={handleArticleFromData}
               formDataPostEdit={formDataPostEdit}
             />
-
-            {pathname.split("/")[2] === "sort_stories" ? (
+            {searchParams.toString() === "content=stories" && (
               <WebStoryEditor content={webStory} htmlJsonGrab={htmlJsonGrab} />
-            ) : (
-              <RichTextEditor
-                content={htmlContent}
-                htmlContentGrab={htmlContentGrab}
-              />
             )}
+
+            {searchParams.toString() === "content=content" && (
+              <div className="flex gap-4 my-5 justify-center">
+                <label
+                  className={`cursor-pointer flex items-center gap-2 px-4 py-2 border rounded-lg ${
+                    type === "single"
+                      ? "border-blue-500 bg-blue-50 w-32"
+                      : "border-gray-300"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="contentType"
+                    value="single"
+                    checked={type === "single"}
+                    onChange={() => setType("single")}
+                    className="hidden"
+                  />
+                  <span className="text-gray-800">Self Finished</span>
+                </label>
+
+                <label
+                  className={`cursor-pointer flex items-center gap-2 px-4 py-2 border rounded-lg ${
+                    type === "series"
+                      ? "border-blue-500 bg-blue-50"
+                      : "border-gray-300"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="contentType"
+                    value="series"
+                    checked={type === "series"}
+                    onChange={() => setType("series")}
+                    className="hidden"
+                  />
+                  <span className="text-gray-800">Series</span>
+                </label>
+              </div>
+            )}
+            {searchParams.toString() === "content=content" &&
+              type === "single" && (
+                <RichTextEditor
+                  content={htmlContent}
+                  htmlContentGrab={htmlContentGrab}
+                />
+              )}
             <RestOfPostEdit formData={formData} handleChange={handleChange} />
           </div>
         </div>
-
-        {/* <div className="w-[30%]">
-          <div className="fixed w-[23%] top-[7rem] right-6 bottom-6 overflow-y-auto z-30">
-            <SeoScoreModal
-              content={htmlContent}
-              title={formDataPostEdit.title}
-              slug={formDataPostEdit.slug}
-              summary={formDataPostEdit.summary}
-              seoDesc={formDataPostEdit.seo_desc}
-              formData={formData}
-            />
-          </div>
-        </div> */}
       </div>
     );
   };

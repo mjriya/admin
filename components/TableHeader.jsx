@@ -7,7 +7,7 @@ const TableHeader = ({ totalPages, currentPage, onPageChange, type, loading, sta
   const { totalPostCount, pendingApprovalCount } = useAllPostDataStore();
   
   return (
-    <div className="bg-white border-b shadow-sm">
+    <div className=" shadow-sm">
       {/* Main Header */}
       <div className="px-6 py-4">
         <div className="flex items-center justify-between">
@@ -15,7 +15,8 @@ const TableHeader = ({ totalPages, currentPage, onPageChange, type, loading, sta
           <div className="flex items-center gap-3">
             <h2 className="text-lg font-semibold text-gray-900">{type} Posts</h2>
             <div className="flex items-center gap-2">
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-50 text-blue-700">
+            
+              <span className="inline-flex items-center px-3 py-1 rounded-full bg-yellow-50 text-yellow-800 shadow">
                 {status === 'pending-approval' ? pendingApprovalCount : totalPostCount}
               </span>
             </div>

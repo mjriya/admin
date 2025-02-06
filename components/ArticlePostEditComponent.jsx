@@ -118,7 +118,7 @@ const ArticlePostEditComponent = ({
           htmlFor="englishTitle"
           className="block text-sm font-medium text-gray-700"
         >
-          English Title (Permalink)
+          Custom Url (Permalink)
         </label>
         <input
           type="text"

@@ -11,33 +11,8 @@ const useAllPostDataStore = create((set, get) => ({
     liveBlogs: [],
 
    
-    pendingApprovalCount: 0,
-    fetchPendingCount: async (type) => {
-        try {
-            const token = Cookies.get('token');
-            if (!token) {
-                throw new Error("No token found in cookies");
-            }
-
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/posts/pending-approval/all?type=${type}&limit=1&page=1`,
-                {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                    },
-                }
-            );
-
-            if (!response.ok) {
-                throw new Error("Failed to fetch pending count");
-            }
-
-            const data = await response.json();
-            set({ pendingApprovalCount: data.pagination?.total || 0 });
-        } catch (error) {
-            console.error("Error fetching pending count:", error);
-        }
-    },
+   
+    
     fetchAllPostedData: async (url, type) => {
         set((state) => ({ 
             loading: state.loading ? state.loading : true, 

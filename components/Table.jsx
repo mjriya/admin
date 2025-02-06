@@ -1,39 +1,37 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FaEdit, FaEye, FaEllipsisV, FaSearch } from "react-icons/fa";
+import { FaEdit, FaEye,  FaSearch, FaTrash, FaCross } from "react-icons/fa";
 import { GoLink } from "react-icons/go";
 import { useRouter, usePathname } from "next/navigation";
 import CalendarModal from "./CalendarModal";
 import { formatDate } from "../util/timeFormat";
 import useAllPostDataStore from "../store/useAllPostDataStore";
 import LoadingSpinner from "../components/LoadingSpinner";
-import ActionMenu from "../components/ActionMenu";
 import { RxUpdate } from "react-icons/rx";
-import Cookies from "js-cookie";
+import { useSearchParams } from "next/navigation";
+import Cookies from 'js-cookie';
 
-export default function Table({ posts, type, onStatusChange, status }) {
+export default function Table({ posts, type, onStatusChange, status ,fetchData}) {
+  const searchParams = useSearchParams();
+
   const {
     loading,
     fetchAllPostedData,
-    pendingApprovalCount,
-    customiseLivePostData,
-    fetchPendingCount,
+    
   } = useAllPostDataStore();
 
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery] = useState("");
-  const [filter, setFilter] = useState("Published");
+  const [filter, setFilter] = useState("published");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [postId, setPostId] = useState("");
   const pathname = usePathname();
 
   // Fetch pending count on mount
-  useEffect(() => {
-    fetchPendingCount(type);
-  }, [type]);
+  
 
   // Add debounced search effect
   useEffect(() => {
@@ -52,7 +50,32 @@ export default function Table({ posts, type, onStatusChange, status }) {
   const handleStartDateChange = (event) => {
     setStartDate(event.target.value);
   };
+  const handleDelete = async (id) => {
 
+    try {
+      const token = Cookies.get("token"); // Get token from cookies
+      
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/article/${id}?${searchParams}`,
+        {
+          method: "DELETE", // Use DELETE HTTP method
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // Include token in headers
+          },
+        }
+      );
+
+      if (!response.ok) {
+        alert("error");
+        throw new Error("Failed to delete the image");
+      }
+      
+      fetchData()
+    } catch (error) {
+      console.error("Error during delete:", error.message);
+    }
+  };
   const handleEndDateChange = (event) => {
     setEndDate(event.target.value);
   };
@@ -71,49 +94,20 @@ export default function Table({ posts, type, onStatusChange, status }) {
     fetchAllPostedData(apiUrl);
   };
 
-  // const pushToLiveContent = async (id) => {
-  //   try {
-  //     const token = Cookies.get("token"); // Get token from cookies
-
-  //     if (!token) {
-  //       throw new Error("Authorization token not found");
-  //     }
-
-  //     const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/article/update/${id}`;
-
-  //     const response = await fetch(apiUrl, {
-  //       method: "PUT", // Use PATCH for partial updates
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-  //       },
-  //       body: JSON.stringify({ isLive: true }), // Send isLive: true in the request body
-  //     });
-
-  //     if (!response.ok) {
-  //       const errorData = await response.json();
-  //       throw new Error(errorData.message || "Failed to update content");
-  //     }
-
-  //     const responseData = await response.json();
-  //     customiseLivePostData("Add", responseData.article);
-  //   } catch (error) {
-  //     console.error("Error publishing content:", error.message);
-  //     // Handle error (e.g., show an error message to the user)
-  //   }
-  // };
-
   return (
     <>
       <>
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+        <div className=" p-6 rounded-2xl shadow mb-2">
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-3">
-              <h2 className="text-xl font-semibold text-gray-800 capitalize"> {type} </h2>
+              <h2 className="text-xl font-semibold text-gray-800 capitalize">
+                {" "}
+                {type}{" "}
+              </h2>
               <button
-                className="ml-2 bg-blue-500 hover:bg-blue-600 text-white font-medium h-8 w-8 rounded-full transition-colors duration-150 flex items-center justify-center shadow-sm"
+                className="ml-2 bg-yellow-50 shadow text-yellow-800  hover:bg-yellow-600 font-bold  h-8 w-8 rounded-full transition-colors duration-150 flex items-center justify-center "
                 onClick={() => {
-                  router.push(`/posts/${type}/new-post`);
+                  router.push(`/posts/${type}/new-post?${searchParams}`);
                 }}
               >
                 +
@@ -128,7 +122,7 @@ export default function Table({ posts, type, onStatusChange, status }) {
                       placeholder="Search..."
                       value={searchQuery}
                       onChange={handleSearchChange}
-                      className="search-input px-4 py-1 border-0 outline-none focus:outline-none"
+                      className="search-input px-4 border-0 outline-none focus:outline-none"
                     />
                   </div>
                   <button
@@ -147,24 +141,24 @@ export default function Table({ posts, type, onStatusChange, status }) {
           <div className="flex mt-6 border-b gap-6 ">
             <button
               className={`${
-                filter === "Published"
-                  ? "border-b-2 border-blue-600 text-blue-600 font-medium"
+                filter === "published"
+                  ? "border-b-2 border-yellow-600 text-yellow-600 font-medium"
                   : "border-b-2 border-transparent text-gray-600 hover:text-gray-800"
               } transition-all duration-200 pb-3 px-2`}
               onClick={() => {
-                setFilter("Published"), onStatusChange("published");
+                setFilter("published"), onStatusChange("published");
               }}
             >
               Published
             </button>
             <button
               className={`${
-                filter === "Draft"
-                  ? "border-b-2 border-blue-600 text-blue-600 font-medium"
+                filter === "draft"
+                  ? "border-b-2 border-yellow-600 text-yellow-600 font-medium"
                   : "border-b-2 border-transparent text-gray-600 hover:text-gray-800"
               } transition-all duration-200 pb-3 px-2`}
               onClick={() => {
-                setFilter("Draft");
+                setFilter("draft");
                 onStatusChange("draft");
               }}
             >
@@ -174,7 +168,7 @@ export default function Table({ posts, type, onStatusChange, status }) {
             <button
               className={`${
                 filter === "PendingApproval"
-                  ? "border-b-2 border-blue-600 text-blue-600 font-medium"
+                  ? "border-b-2 border-yellow-600 text-yellow-600 font-medium"
                   : "border-b-2 border-transparent text-gray-600 hover:text-gray-800"
               } transition-all duration-200 pb-3 px-2 flex items-center gap-2`}
               onClick={() => {
@@ -183,9 +177,7 @@ export default function Table({ posts, type, onStatusChange, status }) {
               }}
             >
               Pending Approval
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-50 text-yellow-700">
-                {pendingApprovalCount}
-              </span>
+             
             </button>
           </div>
         </div>
@@ -195,7 +187,7 @@ export default function Table({ posts, type, onStatusChange, status }) {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full table-auto">
-              <thead className="bg-gray-50">
+              <thead className="">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Title
@@ -224,25 +216,22 @@ export default function Table({ posts, type, onStatusChange, status }) {
                 {posts?.map((article, index) => (
                   <tr
                     key={index}
-                    className="hover:bg-gray-50 transition-colors duration-150"
+                    className="hover:bg-gray-50 transition-colors duration-150 "
                   >
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-0 ">
                       <div className="text-sm font-medium text-gray-900 truncate max-w-md">
                         {article.title}
                       </div>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-1">
                       <div className="text-sm text-gray-500">
-                        {article.primary_category?.map((e, i) => (
-                          <div key={i}>
-                            {e?.name}
-                            {i < article?.primary_category.length - 1 && ", "}
-                          </div>
-                        ))}
+                        {article.primary_category && (
+                          <div>{article.primary_category?.name}</div>
+                        )}
                       </div>
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="text-sm text-gray-500">
+                    <td className="px-4 py-1">
+                      <div className="text-sm text-gray-500 ">
                         {article.credits?.map((c, i) => (
                           <span key={i}>
                             {c?.name}
@@ -251,14 +240,14 @@ export default function Table({ posts, type, onStatusChange, status }) {
                         ))}
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-center">
+                    <td className="px-4 text-center">
                       <div className="text-sm text-gray-500">
                         {article.content && article.content.split(" ").length}
                       </div>
                     </td>
                     <td className="px-4 py-3 text-center">
                       <span
-                        className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                        className={`inline-flex px-2 text-xs font-medium rounded-full ${
                           article.seoScore === 100
                             ? "bg-green-100 text-green-800"
                             : "bg-yellow-100 text-yellow-800"
@@ -267,9 +256,8 @@ export default function Table({ posts, type, onStatusChange, status }) {
                         {10}
                       </span>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-1">
                       <div className="text-sm text-gray-500">
-                       
                         {status === "pending-approval" ||
                         article.status === "pending-approval"
                           ? formatDate(article.updatedAt || article.createdAt)
@@ -278,23 +266,27 @@ export default function Table({ posts, type, onStatusChange, status }) {
                           : formatDate(article.published_at_datetime)}
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-center">
+                    <td className="px-4 text-center">
                       <div className="flex items-center justify-center gap-2">
                         <button
                           onClick={() => {
                             const url = `https://sportzpoint.com/${article.primary_category[0].slug}/${article.slug}`;
                             window.open(url, "_blank");
                           }}
-                          className="p-1 text-gray-600 hover:text-blue-600 transition-colors duration-150"
+                          className="p-1 text-gray-600 hover:text-yellow-600 transition-colors duration-150"
                         >
                           <FaEye className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => {
                             const views = article?.views ?? "0";
-                            router.push(`/posts/${type}/${article._id}`);
+                            router.push(
+                              `/posts/${type}/${
+                                article._id
+                              }?${searchParams.toString()}`
+                            );
                           }}
-                          className="p-1 text-gray-600 hover:text-blue-600 transition-colors duration-150"
+                          className="p-1 text-gray-600 hover:text-yellow-600 transition-colors duration-150"
                         >
                           <FaEdit className="w-4 h-4" />
                         </button>
@@ -310,7 +302,7 @@ export default function Table({ posts, type, onStatusChange, status }) {
                                 alert("Failed to copy!");
                               });
                           }}
-                          className="p-1 text-gray-600 hover:text-blue-600 transition-colors duration-150"
+                          className="p-1 text-gray-600 hover:text-yellow-600 transition-colors duration-150"
                         >
                           <GoLink className="w-4 h-4" />
                         </button>
@@ -325,24 +317,29 @@ export default function Table({ posts, type, onStatusChange, status }) {
                             </button>
                           )}
 
-                       
-                            <div className="bg-relative">
-                              <button
-                                onClick={() => setPostId(article._id)}
-                                className="p-1 text-red-600 hover:text-red-600 transition-colors duration-150"
-                              >
-                                D
-                              </button>
+                        <div className="bg-relative flex  ">
+                        {postId=== article._id && 
+                            <button
+                              
+                              className="flex group items-center rounded-tr-none rounded-br-none bg-zinc-100 rounded px-2 text-red-600 border border-red-600 border-r-0"
+                              onClick={()=>handleDelete(article._id)}
+                            >
+                              ok
+                            </button>
+                          }
+                           {postId=== article._id ?<button className=" px-1 border rounded-tr rounded-br border-yellow-600"  onClick={() => setPostId(null)}   >
+                            x
+                           </button>: <button
+                            onClick={() => setPostId(article._id)}
+                            className="p-1 text-red-600 hover:text-red-600 transition-colors duration-150"
+                          >
+                            <FaTrash className="w-3 h-3 transition-all duration-100 mr-2" />
+                          </button>}
 
-                              {postId === article._id && (
-                                <ActionMenu
-                                  status={filter}
-                                  id={article._id}
-                                  type={article.type}
-                                />
-                              )}
-                            </div>
                           
+
+                          
+                        </div>
                       </div>
                     </td>
                   </tr>

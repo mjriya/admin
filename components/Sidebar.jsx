@@ -36,7 +36,7 @@ const Sidebar = () => {
 
   const menuItems = [
     { name: "Home", icon: FaHome, link: "/#", onClick: () => togglePostSidebar(false) },
-    { name: "Content", icon: FaRegEdit, link: "/posts/bengali", onClick: handlePostsClick },
+    { name: "Content", icon: FaRegEdit, link: "/posts/bengali?content=content", onClick: handlePostsClick },
     { name: "Gallery", icon: MdOutlinePermMedia, link: "/gallery", onClick: () => togglePostSidebar(false) },
     { name: "Categories", icon: TbCategoryPlus, link: "/categories", onClick: () => togglePostSidebar(false) },
     { name: "Configuration", icon: FaCog, link: "/configuration", onClick: () => togglePostSidebar(false) },
@@ -63,11 +63,11 @@ const Sidebar = () => {
           >
             <Link href={item.link} onClick={item.onClick}>
               <div
-                className={`flex items-center gap-4 px-4 py-2 text-gray-700 rounded hover:bg-blue-100 hover:text-blue-600 ${
+                className={`flex items-center gap-4 px-4 py-2 text-gray-700 rounded hover:bg-yellow-50 hover:text-yellow-800 ${
                   collapsed ? "justify-center" : "justify-start"
                 }`}
               >
-                <div className="text-xl hover:text-blue-600">
+                <div className="text-xl hover:text-yellow-800">
                   <item.icon size={16} />
                 </div>
                 <span
