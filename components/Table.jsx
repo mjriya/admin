@@ -311,7 +311,7 @@ export default function Table({ posts, type, onStatusChange, status ,fetchData})
                           article.type === "LiveBlog" && (
                             <button
                               onClick={() => pushToLiveContent(article._id)}
-                              className="p-1 text-red-600 hover:text-red-600 transition-colors duration-150"
+                              className="p-1 text-yellow-800 hover:text-red-600 transition-colors duration-150"
                             >
                               <RxUpdate />
                             </button>
@@ -321,17 +321,17 @@ export default function Table({ posts, type, onStatusChange, status ,fetchData})
                         {postId=== article._id && 
                             <button
                               
-                              className="flex group items-center rounded-tr-none rounded-br-none bg-zinc-100 rounded px-2 text-red-600 border border-red-600 border-r-0"
+                              className="flex group items-center rounded-tr-none rounded-br-none bg-yellow-50 rounded px-2 text-yellow-800 "
                               onClick={()=>handleDelete(article._id)}
                             >
                               ok
                             </button>
                           }
-                           {postId=== article._id ?<button className=" px-1 border rounded-tr rounded-br border-yellow-600"  onClick={() => setPostId(null)}   >
+                           {postId=== article._id ?<button className=" px-1 bg-yellow-50 text-yellow-700 rounded-tr rounded-br "  onClick={() => setPostId(null)}   >
                             x
                            </button>: <button
                             onClick={() => setPostId(article._id)}
-                            className="p-1 text-red-600 hover:text-red-600 transition-colors duration-150"
+                            className="p-1 text-gray-700 hover:text-yellow-600 transition-colors duration-150"
                           >
                             <FaTrash className="w-3 h-3 transition-all duration-100 mr-2" />
                           </button>}

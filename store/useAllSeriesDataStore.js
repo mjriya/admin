@@ -1,21 +1,23 @@
 import { create } from "zustand";
 import Cookies from 'js-cookie';
 
-const useAllPostDataStore = create((set, get) => ({
-    allPosts: [],
-    loading: true,
+const useAllSeriesDataStore = create((set, get) => ({
+
+    
+    allSeriesPosts: [],
+    seriesLoading: false,
     error: null,
-    totalPages: 0,
-    currentPage: 1,
-    totalPostCount:  0,
-    liveBlogs: [],
+    totalSeriesPages: 0,
+    currentSeriesPage: 1,
+    totalSeriesPostCount:  0,
+    
     
    
    
     
-    fetchAllPostedData: async (url, type) => {
+    fetchAllSeriesPostedData: async (url, type) => {
         set((state) => ({ 
-            loading: state.loading ? state.loading : true, 
+            seriesLoading: state.loading ? state.seriesLoading : true, 
             error: null 
         }));
         try {
@@ -42,35 +44,35 @@ const useAllPostDataStore = create((set, get) => ({
             // If this is a pending approval request, update the pending count
             if (url.includes('pending-approval')) {
                 set(() => ({
-                    totalPages: data.pagination?.totalPages || 0,
-                    currentPage: data.pagination?.page || 1,
+                    totalSeriesPages: data.pagination?.totalPage || 0,
+                    currentSeriesPage: data.pagination?.page || 1,
                     pendingApprovalCount: data.pagination?.total || 0,
-                    allPosts: data.articles || [],
-                    loading: false,
+                    allSeriesPosts: data.articles || [],
+                    seriesLoading: false,
                 }));
             } else {
                 set(() => ({
-                    totalPages: data.pagination?.totalPages || 0,
-                    currentPage: data.pagination?.page || 1,
-                    totalPostCount: data.pagination?.total || 0,
-                    allPosts: data.articles || [],
-                    loading: false,
+                    totalSeriesPages: data.pagination?.totalPage || 0,
+                    currentSeriesPage: data.pagination?.page || 1,
+                    totalSeriesPostCount: data.pagination?.total || 0,
+                    allSeriesPosts: data.articles || [],
+                    seriesLoading: false,
                 }));
             }
         } catch (error) {
-            set({ error: error.message, loading: false });
+            set({ error: error.message, seriesLoading: false });
             console.error("Error fetching data:", error);
         }
     },
     customisePostData: (type, data) => {
-        const currentPosts = get().allPosts; // Use `get` to access the current state
+        const currentPosts = get().allSeriesPosts; // Use `get` to access the current state
 
         if (type === 'Add') {
             const newPosts = [...currentPosts, data]; // Add new post to the array
-            set({ allPosts: newPosts }); // Update the state with `set`
+            set({ allSeriesPosts: newPosts }); // Update the state with `set`
         }
     },
     
 }));
 
-export default useAllPostDataStore;
+export default useAllSeriesDataStore;

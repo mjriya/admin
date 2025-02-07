@@ -3,6 +3,7 @@ import axios from 'axios';
 import { FaAngleLeft,FaAngleRight } from "react-icons/fa6";
 
 const SeriesOfStories = ({ langue }) => {
+   
     const [series, setSeries] = useState([]);
     const [search, setSearch] = useState('');
     const [page, setPage] = useState(1);
@@ -67,7 +68,7 @@ const SeriesOfStories = ({ langue }) => {
                 <div className='flex flex-col justify-between'>
                     <div className='h-[330px] text-zinc-700 flex flex-col w-full justify-start gap-1 '>
                         {series.map((article) => (
-                            <button key={article._id} className=' text-start px-2  rounded transition-all duration-200 hover:bg-zinc-100' >
+                            <button key={article._id} className=' text-start px-2 border-b border-yellow-800  rounded transition-all duration-200 hover:bg-zinc-100' >
                                 <h3>{article.title}</h3>
                                
                             </button>
