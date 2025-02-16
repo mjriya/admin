@@ -47,7 +47,7 @@ const useAllSeriesDataStore = create((set, get) => ({
                     totalSeriesPages: data.pagination?.totalPage || 0,
                     currentSeriesPage: data.pagination?.page || 1,
                     pendingApprovalCount: data.pagination?.total || 0,
-                    allSeriesPosts: data.articles || [],
+                    allSeriesPosts: data.series || [],
                     seriesLoading: false,
                 }));
             } else {

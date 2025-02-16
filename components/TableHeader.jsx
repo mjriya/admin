@@ -5,7 +5,7 @@ import useAllPostDataStore from '../store/useAllPostDataStore';
 
 const TableHeader = ({ totalPages, currentPage, onPageChange, type, loading, status }) => {
   const { totalPostCount, pendingApprovalCount } = useAllPostDataStore();
-  
+    
   return (
     <div className=" shadow-sm">
       {/* Main Header */}

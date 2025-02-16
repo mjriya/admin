@@ -127,6 +127,7 @@ const PostSideBar = () => {
                                     : "text-gray-600 hover:text-gray-900"
                                 }`}
                               >
+                                
                                 <SiContentstack className="text-yellow-700" />
 
                                 {link.type}
@@ -162,7 +163,7 @@ const PostSideBar = () => {
             ))}
           </div>
 
-          <SeriesOfStories langue={activeLang} />
+          <SeriesOfStories langue={activeLang}  />
         </div>
       </AnimatePresence>
 
