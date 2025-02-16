@@ -8,7 +8,6 @@ import { usePathname, useSearchParams } from 'next/navigation';
 
 const Page = () => {
   const pathname = usePathname();  // Gets "/bengali"
-  const searchParams = useSearchParams();
 
 
   const { fetchAllSeriesPostedData,seriesLoading,allSeriesPosts,totalSeriesPages,currentSeriesPage,totalSeriesPostCount } = useAllSeriesDataStore();
@@ -19,7 +18,7 @@ const Page = () => {
   // Function to update data when status or page changes
   const fetchData = () => {
 
-    let url = `${process.env.NEXT_PUBLIC_API_URL}/posts/${status}?langue=bengali&limit=${limit}&page=${currentPage}&${searchParams}`;
+    let url = `${process.env.NEXT_PUBLIC_API_URL}/series/${status}/${pathname.split("/")[2]}?langue=bengali&limit=${limit}&page=${currentPage}`;
     
     fetchAllPostedData(url, 'bengali');
 
@@ -29,7 +28,7 @@ const Page = () => {
   // useEffect hook ensures fetchData runs only on the client
   useEffect(() => {
     fetchAllSeriesPostedData();
-  }, [currentPage, status, searchParams]);
+  }, [currentPage, status]);
 
   // Only execute scroll logic on the client
   const handlePageChange = (newPage) => {
@@ -50,18 +49,18 @@ const Page = () => {
         <div className=' rounded-lg shadow'>
           <TableHeader
             type="Bengali"
-            currentPage={currentPage}
-            loading={loading}
-            totalPages={totalPages}
+            currentPage={currentSeriesPage}
+            loading={seriesLoading}
+            totalPages={totalSeriesPages}
             onPageChange={handlePageChange}
             onStatusChange={handleStatusChange}
-            totalItems={allPosts.length}
+            totalItems={totalSeriesPostCount}
             status={status} // Pass current status
           />
           <div className="overflow-x-auto">
             <Table
-              posts={allPosts}
-              loading={loading}
+              posts={allSeriesPosts}
+              loading={seriesLoading}
               type={'bengali'}
               status={status}
               fetchData={fetchData}
