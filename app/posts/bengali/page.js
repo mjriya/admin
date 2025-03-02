@@ -20,7 +20,7 @@ const Page = () => {
   const fetchData = () => {
 
     let url = `${process.env.NEXT_PUBLIC_API_URL}/posts/${status}?langue=bengali&limit=${limit}&page=${currentPage}&${searchParams}`;
-    
+      
     fetchAllPostedData(url, 'bengali');
 
 

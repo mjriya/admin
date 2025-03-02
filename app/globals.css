@@ -66,3 +66,23 @@
   font-size: 14px;
   color: #f0f0f0;
 }
+
+/* WebKit Scrollbar (Chrome, Edge, Safari) */
+.scrollbar::-webkit-scrollbar {
+  width: 2px; /* Minimum width */
+}
+
+.scrollbar::-webkit-scrollbar-track {
+  background: transparent; /* Optional: Keeps the track invisible */
+}
+
+.scrollbar::-webkit-scrollbar-thumb {
+  background-color: #ffcc00; /* Deep Yellow */
+  border-radius: 10px; /* Smooth rounded edges */
+}
+
+/* Firefox Scrollbar */
+.scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #ffcc00 transparent;
+}

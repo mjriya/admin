@@ -6,7 +6,7 @@ import useSidebarStore from '../store/useSidebarStore';
 import Link from 'next/link';
 const SeriesOfStories = ({ langue }) => {
     const { showPostSidebar, togglePostSidebar } = useSidebarStore();
-
+    
     const [series, setSeries] = useState([]);
     const [search, setSearch] = useState('');
     const [page, setPage] = useState(1);
@@ -14,30 +14,33 @@ const SeriesOfStories = ({ langue }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        const fetchSeries = async () => {
-            setLoading(true);
-            try {
-                const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/series/article`, {
-                    params: {
-                        langue,
-                        search,
-                        page,
-                        limit: 10
-                    }
-                });
-                setSeries(response.data.series);
-                setTotalPages(response.data.totalPages);
-                setCurrentPage(response.data.currentPage);
-                
-            } catch (error) {
-                console.error('Error fetching series:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
+    const fetchSeries = async (option) => {
+        setLoading(true);
+        try {
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/series/article`, {
+                params: {
+                    langue,
+                    search,
+                    page,
+                    limit: 10
+                }
+            });
+            
+            
+            setSeries(response.data.series);
+            setTotalPages(response.data.totalPages);
+            setCurrentPage(response.data.currentPage);
+            
+        } catch (error) {
+            console.error('Error fetching series:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
+    useEffect(() => {
         fetchSeries();
+       
     }, [langue, search, page]);
 
     const handleSearchChange = (event) => {
@@ -60,7 +63,6 @@ const SeriesOfStories = ({ langue }) => {
                 placeholder="Search for series..."
                 value={search}
                 onChange={handleSearchChange}
-                onKeyDown={handleSearchKeyDown}
                 className="border-zinc-300 rounded border outline-none w-full px-3 py-1  mb-4"
             />
 

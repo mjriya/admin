@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FaEdit, FaEye,  FaSearch, FaTrash, FaCross } from "react-icons/fa";
+import { FaEdit, FaEye, FaSearch, FaTrash, FaCross } from "react-icons/fa";
 import { GoLink } from "react-icons/go";
 import { useRouter, usePathname } from "next/navigation";
 import CalendarModal from "./CalendarModal";
@@ -10,16 +10,19 @@ import useAllPostDataStore from "../store/useAllPostDataStore";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { RxUpdate } from "react-icons/rx";
 import { useSearchParams } from "next/navigation";
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
 
-export default function Table({ posts, type, onStatusChange, status ,fetchData}) {
+export default function Table({
+  posts,
+  type,
+  onStatusChange,
+  status,
+  fetchData,
+  parentId,
+}) {
   const searchParams = useSearchParams();
 
-  const {
-    loading,
-    fetchAllPostedData,
-    
-  } = useAllPostDataStore();
+  const { loading, fetchAllPostedData } = useAllPostDataStore();
 
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
@@ -31,7 +34,6 @@ export default function Table({ posts, type, onStatusChange, status ,fetchData})
   const pathname = usePathname();
 
   // Fetch pending count on mount
-  
 
   // Add debounced search effect
   useEffect(() => {
@@ -51,10 +53,9 @@ export default function Table({ posts, type, onStatusChange, status ,fetchData})
     setStartDate(event.target.value);
   };
   const handleDelete = async (id) => {
-
     try {
       const token = Cookies.get("token"); // Get token from cookies
-      
+
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/article/${id}?${searchParams}`,
         {
@@ -70,8 +71,8 @@ export default function Table({ posts, type, onStatusChange, status ,fetchData})
         alert("error");
         throw new Error("Failed to delete the image");
       }
-      
-      fetchData()
+
+      fetchData();
     } catch (error) {
       console.error("Error during delete:", error.message);
     }
@@ -100,14 +101,16 @@ export default function Table({ posts, type, onStatusChange, status ,fetchData})
         <div className=" p-6 rounded-2xl shadow mb-2">
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-3">
-              <h2 className="text-xl font-semibold text-gray-800 capitalize">
+              {type && <h2 className="text-xl font-semibold text-gray-800 capitalize">
                 {" "}
                 {type}{" "}
-              </h2>
+              </h2>}
               <button
                 className="ml-2 bg-yellow-50 shadow text-yellow-800  hover:bg-yellow-600 font-bold  h-8 w-8 rounded-full transition-colors duration-150 flex items-center justify-center "
                 onClick={() => {
-                  router.push(`/posts/${type}/new-post?${searchParams}`);
+                  !parentId
+                    ? router.push(`/posts/${type}/new-post?${searchParams}`)
+                    : router.push(`/series/part/newPost?${parentId}`);
                 }}
               >
                 +
@@ -177,7 +180,6 @@ export default function Table({ posts, type, onStatusChange, status ,fetchData})
               }}
             >
               Pending Approval
-             
             </button>
           </div>
         </div>
@@ -318,27 +320,29 @@ export default function Table({ posts, type, onStatusChange, status ,fetchData})
                           )}
 
                         <div className="bg-relative flex  ">
-                        {postId=== article._id && 
+                          {postId === article._id && (
                             <button
-                              
                               className="flex group items-center rounded-tr-none rounded-br-none bg-yellow-50 rounded px-2 text-yellow-800 "
-                              onClick={()=>handleDelete(article._id)}
+                              onClick={() => handleDelete(article._id)}
                             >
                               ok
                             </button>
-                          }
-                           {postId=== article._id ?<button className=" px-1 bg-yellow-50 text-yellow-700 rounded-tr rounded-br "  onClick={() => setPostId(null)}   >
-                            x
-                           </button>: <button
-                            onClick={() => setPostId(article._id)}
-                            className="p-1 text-gray-700 hover:text-yellow-600 transition-colors duration-150"
-                          >
-                            <FaTrash className="w-3 h-3 transition-all duration-100 mr-2" />
-                          </button>}
-
-                          
-
-                          
+                          )}
+                          {postId === article._id ? (
+                            <button
+                              className=" px-1 bg-yellow-50 text-yellow-700 rounded-tr rounded-br "
+                              onClick={() => setPostId(null)}
+                            >
+                              x
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => setPostId(article._id)}
+                              className="p-1 text-gray-700 hover:text-yellow-600 transition-colors duration-150"
+                            >
+                              <FaTrash className="w-3 h-3 transition-all duration-100 mr-2" />
+                            </button>
+                          )}
                         </div>
                       </div>
                     </td>

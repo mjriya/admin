@@ -5,6 +5,7 @@ import useAllPostDataStore from '../store/useAllPostDataStore';
 
 const TableHeader = ({ totalPages, currentPage, onPageChange, type, loading, status }) => {
   const { totalPostCount, pendingApprovalCount } = useAllPostDataStore();
+  
     
   return (
     <div className=" shadow-sm">
@@ -13,7 +14,7 @@ const TableHeader = ({ totalPages, currentPage, onPageChange, type, loading, sta
         <div className="flex items-center justify-between">
           {/* Left Section */}
           <div className="flex items-center gap-3">
-            <h2 className="text-lg font-semibold text-gray-900">{type} Posts</h2>
+           {type &&  <h2 className="text-lg font-semibold text-gray-900">{type} Posts</h2>}
             <div className="flex items-center gap-2">
             
               <span className="inline-flex items-center px-3 py-1 rounded-full bg-yellow-50 text-yellow-800 shadow">
