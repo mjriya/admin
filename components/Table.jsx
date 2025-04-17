@@ -98,7 +98,7 @@ export default function Table({
   return (
     <>
       <>
-        <div className=" p-6 rounded-2xl shadow mb-2">
+        <div className=" p-6 rounded-2xl shadow mb-2 border">
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-3">
               {type && <h2 className="text-xl font-semibold text-gray-800 capitalize">

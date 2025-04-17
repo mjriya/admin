@@ -27,7 +27,7 @@ const CalendarModal = ({ onApply }) => {
       {/* Calendar Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-yellow-500"
       >
         <FaCalendarAlt className="text-gray-500" />
         {startDate && endDate ? (
@@ -66,7 +66,7 @@ const CalendarModal = ({ onApply }) => {
                   selectsStart
                   startDate={startDate}
                   endDate={endDate}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
                   dateFormat="MMMM d, yyyy"
                   placeholderText="Select start date"
                 />
@@ -83,7 +83,7 @@ const CalendarModal = ({ onApply }) => {
                   startDate={startDate}
                   endDate={endDate}
                   minDate={startDate}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
                   dateFormat="MMMM d, yyyy"
                   placeholderText="Select end date"
                 />
@@ -148,7 +148,7 @@ const CalendarModal = ({ onApply }) => {
               </button>
               <button
                 onClick={handleApply}
-                className="px-4 py-2 text-sm text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors duration-200"
+                className="px-4 py-2 text-sm text-white bg-yellow-600 rounded-md hover:bg-yellow-800 transition-colors duration-200"
               >
                 Apply
               </button>

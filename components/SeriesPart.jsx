@@ -13,13 +13,13 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { validateSlug } from "../util/validateSlug";
 
-function ManagePostProperties() {
+function SeriesPart() {
   const searchParams = useSearchParams();
+  const parentsId = searchParams.toString().split("=")[0];
   const router = useRouter();
   const { allPosts, customisePostData } = useAllPostDataStore();
   const pathname = usePathname();
   const [post, setPost] = useState(null);
-  const [live, setLive] = useState(false);
   const [webStory, setWebStory] = useState([]);
   const [chnageStatus, setChnageStatus] = useState("");
   const [publishAtTime, setPublishAtTime] = useState("");
@@ -27,7 +27,7 @@ function ManagePostProperties() {
 
   const [postedIdDraft, setPostedIdDraft] = useState(() => {
     const pathParts = pathname.split("/");
-    return pathParts[3] === "new-post" ? "" : pathParts[3];
+    return pathParts[3] === "newPost" ? "" : pathParts[3];
   });
 
   const showToast = (message, options = {}) => {
@@ -57,8 +57,6 @@ function ManagePostProperties() {
     );
   };
   const [formData, setFormData] = useState({
-    primaryCategory: null,
-    additionalCategories: [],
     part: [],
     credits: [],
     focusKeyphrase: "",
@@ -69,11 +67,6 @@ function ManagePostProperties() {
     slug: "",
     summary: "",
     seo_desc: "",
-    banner_image: "",
-    banner_desc: "",
-    banner_caption: "",
-    video: "",
-    video_caption: "",
   });
 
   const [htmlContent, setHtmlContent] = useState("");
@@ -118,8 +111,6 @@ function ManagePostProperties() {
       return updated;
     });
   };
-
-  
 
   const handleArticleFromData = (name, value) => {
     setEdting(true);
@@ -176,17 +167,13 @@ function ManagePostProperties() {
   useEffect(() => {
     const initializeData = async () => {
       const parts = pathname.split("/");
-      const type = parts[2];
       const id = parts[3];
 
-      if (id === "new-post") {
-        // Reset states for a new post
-        setWebStory([]);
+      if (id === "newPost") {
+       
         setPost(null);
         setHtmlContent("");
         setFormData({
-          primaryCategory: null,
-          additionalCategories: [],
           tags: [],
           credits: [],
           focusKeyphrase: "",
@@ -196,17 +183,12 @@ function ManagePostProperties() {
           slug: "",
           summary: "",
           seo_desc: "",
-          banner_image: "",
-          banner_desc: "",
-          banner_caption: "",
-          video: "",
-          video_caption: "",
+
         });
         setPublishAtTime(new Date());
       } else {
-        // Fetch data for an existing post
+        
         let requiredData = null;
-
         if (!requiredData) {
           try {
             const data = await fetchDataById(
@@ -269,11 +251,7 @@ function ManagePostProperties() {
           slug: requiredData.slug || "",
           summary: requiredData.summary || "",
           seo_desc: requiredData.seo_desc || "",
-          banner_image: requiredData.banner_image || "",
-          banner_desc: requiredData.banner_desc || "",
-          banner_caption: requiredData.banner_caption || "",
-          video: requiredData.video || "",
-          video_caption: requiredData.video_caption || "",
+         
         });
       }
     };
@@ -309,28 +287,13 @@ function ManagePostProperties() {
       }
 
       const transformedData = {
-        primary_category: formData.primaryCategory
-          ? [formData.primaryCategory.value]
-          : [],
+        parent_id:parentsId,
         title: formDataPostEdit.title.trim(),
         summary: formDataPostEdit.summary.trim(),
-        type: type,
-
-        live_blog_updates:
-          pathname.split("/")[3] === "new-post" ? [] : post.live_blog_updates,
-
         tags: formData.tags.map((tag) => tag.value),
-        categories: formData.additionalCategories.map((cat) => cat.value),
-        video: formDataPostEdit.video.trim(),
-        video_caption: formDataPostEdit.video_caption,
-        isLive: live,
-        banner_desc: formDataPostEdit.banner_desc.trim(),
-        banner_image: formDataPostEdit.banner_image.trim(),
         credits: formData.credits.map((credit) => credit.value),
         focusKeyphrase: formData.focusKeyphrase.trim(),
-        banner_caption: formDataPostEdit.banner_caption,
         content: htmlContent.trim(),
-
         status: status,
 
         author: authorId,
@@ -351,12 +314,10 @@ function ManagePostProperties() {
         transformedData.published_at_datetime = null;
       }
 
-      // if (pathname && pathname.split("/")[2] === "sort_stories") {
-      //   transformedData.web_story = webStory;
-      // }
-      if(searchParams.toString() === "content=stories"){
+      if (pathname && pathname.split("/")[2] === "sort_stories") {
         transformedData.web_story = webStory;
       }
+
       if (status === "draft") {
         let isCreate = postedIdDraft === "";
 
@@ -533,56 +494,6 @@ function ManagePostProperties() {
               handleArticleFromData={handleArticleFromData}
               formDataPostEdit={formDataPostEdit}
             />
-            {searchParams.toString() === "content=stories" && (
-              <WebStoryEditor content={webStory} htmlJsonGrab={htmlJsonGrab} />
-            )}
-
-            {searchParams.toString() === "content=content" && (
-              <div className="flex gap-4 my-5 justify-center">
-                <label
-                  className={`cursor-pointer flex items-center gap-2 px-4 py-2 border rounded-lg ${
-                    type === "single"
-                      ? "border-blue-500 bg-blue-50 w-32"
-                      : "border-gray-300"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="contentType"
-                    value="single"
-                    checked={type === "single"}
-                    onChange={() => setType("single")}
-                    className="hidden"
-                  />
-                  <span className="text-gray-800">Self Finished</span>
-                </label>
-
-                <label
-                  className={`cursor-pointer flex items-center gap-2 px-4 py-2 border rounded-lg ${
-                    type === "series"
-                      ? "border-blue-500 bg-blue-50"
-                      : "border-gray-300"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="contentType"
-                    value="series"
-                    checked={type === "series"}
-                    onChange={() => setType("series")}
-                    className="hidden"
-                  />
-                  <span className="text-gray-800">Series</span>
-                </label>
-              </div>
-            )}
-            {searchParams.toString() === "content=content" &&
-              type === "single" && (
-                <RichTextEditor
-                  content={htmlContent}
-                  htmlContentGrab={htmlContentGrab}
-                />
-              )}
             <RestOfPostEdit formData={formData} handleChange={handleChange} />
           </div>
         </div>
@@ -777,4 +688,4 @@ function ManagePostProperties() {
   );
 }
 
-export default ManagePostProperties;
+export default SeriesPart;

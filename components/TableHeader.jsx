@@ -8,7 +8,7 @@ const TableHeader = ({ totalPages, currentPage, onPageChange, type, loading, sta
   
     
   return (
-    <div className=" shadow-sm">
+    <div className="">
       {/* Main Header */}
       <div className="px-6 py-4">
         <div className="flex items-center justify-between">
