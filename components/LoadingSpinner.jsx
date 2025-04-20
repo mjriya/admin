@@ -11,11 +11,12 @@ const LoadingSpinner = ({ text = 'Loading' }) => {
     }
   };
 
+  const letters = text.toUpperCase().split(""); // ['L', 'O', 'A', 'D', 'I', 'N', 'G']
+
   return (
     <div className="flex flex-col items-center justify-center min-h-[200px] gap-4">
-      {/* Animated dots */}
       <div className="flex gap-2">
-        {[0, 1, 2].map((index) => (
+        {letters.map((letter, index) => (
           <motion.div
             key={index}
             animate={{ y: ["0%", "-50%"] }}
@@ -23,13 +24,12 @@ const LoadingSpinner = ({ text = 'Loading' }) => {
               ...bounceTransition.y,
               delay: index * 0.1
             }}
-            className="w-3 h-3 bg-blue-600 rounded-full"
-          />
+            className="w-4 h-4 flex text-sm font-thin items-center justify-center bg-yellow-100 border border-yellow-800 rounded text-yellow-900 px-2 py-1 shadow-md"
+          >
+            {letter}
+          </motion.div>
         ))}
       </div>
-
-      {/* Loading text */}
-      
     </div>
   );
 };

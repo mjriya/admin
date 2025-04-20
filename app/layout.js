@@ -8,6 +8,7 @@ import useSidebarStore from "../store/useSidebarStore";
 import AuthProvider from "../components/AuthProvider";
 import 'quill/dist/quill.snow.css';
 import 'quill-better-table/dist/quill-better-table.css';
+import { useEffect } from "react";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -22,7 +23,7 @@ const geistMono = localFont({
 
 export default function RootLayout({ children }) {
   const { collapsed } = useSidebarStore();
-
+  
   return (
     <html lang="en">
       <body className={`bg-white ${geistSans.variable} ${geistMono.variable} antialiased`}>

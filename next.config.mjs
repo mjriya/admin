@@ -1,5 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  reactStrictMode: true,
+  compiler: {
+    styledComponents: true,
+    experimental: {
+      suppressHydrationWarning: true,
+    },
+  },
   images: {
     domains: ['res.cloudinary.com'], // Add Cloudinary domain here
     remotePatterns: [

@@ -2,6 +2,7 @@ import Image from "next/image";
 import React, { useState } from "react";
 import ImageGalleryPopup from "./ImageGalleryPopup";
 import { v4 as uuidv4 } from "uuid";
+import { FaCirclePlus } from "react-icons/fa6";
 
 const generateMongoId = () => {
   return uuidv4().replace(/-/g, "").slice(0, 24); // Ensure it resembles MongoDB's format
@@ -97,9 +98,11 @@ const WebStoryEditor = ({ content, htmlJsonGrab }) => {
       {/* Add Button */}
       <button
         onClick={handleAdd}
-        className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        className="mt-4 px-4 py-2 flex items-center gap-2 bg-yellow-400 hover:bg-yellow-700 text-black hover:text-white rounded-lg shadow-md border-
+        -700"
       >
-        Add New Story
+        <FaCirclePlus />
+        <div><b>S</b>tories</div>
       </button>
 
       {/* Edit Form */}
@@ -126,13 +129,19 @@ const WebStoryEditor = ({ content, htmlJsonGrab }) => {
                   )}
                 </div>
                 <div className="mb-4 mt-1">
-                  <button
-                    className="bg-zinc-500 text-white px-2 py-1 rounded"
-                    onClick={() => setShowImageGallery(true)}
-                  >
-                    {selectedItem.img_src ? "Change Image" : "Add Image"}
-                  </button>
-                </div>
+  <button
+    className="bg-yellow-500 hover:bg-yellow-700 text-white px-2 py-1 rounded flex items-center gap-1"
+    onClick={() => setShowImageGallery(true)}
+  >
+    {selectedItem.img_src ? (
+      'Change Image'
+    ) : (
+      <>
+        <FaCirclePlus /> Image
+      </>
+    )}
+  </button>
+</div>
               </div>
               <div className="flex-1">
                 <div className="mb-4">
@@ -171,7 +180,7 @@ const WebStoryEditor = ({ content, htmlJsonGrab }) => {
               </button>
               <button
                 onClick={handleSave}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700"
               >
                 Save
               </button>

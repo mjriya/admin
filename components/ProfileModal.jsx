@@ -1,16 +1,16 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { FaTimes, FaCamera, FaFacebookF, FaLinkedinIn } from "react-icons/fa";
+import { FaTimes, FaCamera, FaFacebookF, FaLinkedinIn, FaSignOutAlt } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import Image from "next/image";
 import Cookies from "js-cookie";
 import toast from "react-hot-toast";
+import TextField from "@mui/material/TextField";
 import ImageGalleryPopup from "./ImageGalleryPopup";
-const DEFAULT_AVATAR =
-  "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2NjY2NjYyI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTAgM2MyLjY3IDAgNC44NCAyLjE3IDQuODQgNC44NCAwIDIuNjctMi4xNyA0Ljg0LTQuODQgNC44NC0yLjY3IDAtNC44NC0yLjE3LTQuODQtNC44NCAwLTIuNjcgMi4xNy00Ljg0IDQuODQtNC44NHptMCAxMmE5Ljk4IDkuOTggMCAwIDEtOC4xNi00LjIzYy4wNS0yLjcyIDUuNDQtNC4yMiA4LjE2LTQuMjJzOC4xMSAxLjUgOC4xNiA0LjIyYTkuOTggOS45OCAwIDAgMS04LjE2IDQuMjN6Ii8+PC9zdmc+";
+import AVATAR from "../public/avatar.png";
 
 const ProfileModal = ({ isOpen, onClose, userData }) => {
-  const fileInputRef = useRef(null);
+  const modalRef = useRef(null);
   const [formData, setFormData] = useState({
     name: userData?.data?.name || "",
     avatar: userData?.data?.profile_picture || "",
@@ -20,100 +20,71 @@ const ProfileModal = ({ isOpen, onClose, userData }) => {
     linkedin: userData?.data?.social_profiles?.linkedin || "",
   });
   
-  const [previewUrl, setPreviewUrl] = useState(DEFAULT_AVATAR);
+  const [imageGallarys, setimageGallarys] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
-  // Fetch user data when modal opens
   useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (modalRef.current && !modalRef.current.contains(event.target)) {
+        onClose();
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [onClose]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    
     const fetchUserData = async () => {
       try {
         const token = Cookies.get("token");
         const userId = localStorage.getItem("id");
-
-        if (!token || !userId) {
-          throw new Error("Authentication token or user ID not found");
-        }
+        if (!token || !userId) return;
 
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/user/${userId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+          { headers: { Authorization: `Bearer ${token}` } }
         );
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch user data");
-        }
-
+        if (!response.ok) throw new Error("Failed to fetch user data");
         const data = await response.json();
 
-        setFormData((prev) => ({
-          ...prev,
+        setFormData({
           name: data.data?.name || "",
           avatar: data.data?.profile_picture || "",
-
           bio: data.data?.bio || "",
           twitter: data.data.social_profiles?.twitter || "",
           facebook: data.data.social_profiles?.facebook || "",
           linkedin: data.data.social_profiles?.linkedin || "",
-        }));
-
-
-        // Update avatar preview
-        if (data.data.profile_picture) {
-          setPreviewUrl(data.data.profile_picture);
-        } else {
-          setPreviewUrl(DEFAULT_AVATAR);
-        }
+        });
       } catch (error) {
         console.error("Error fetching user data:", error);
         toast.error("Failed to load user data");
       }
     };
 
-    if (isOpen) {
-      fetchUserData();
-    }
+    fetchUserData();
   }, [isOpen]);
 
-  const [imageGallarys, setimageGallarys] = useState(false);
-  const takeImageFromImageGallary = () => {
-    setimageGallarys(!imageGallarys);
+  const handleLogout = () => {
+    Cookies.remove("token");
+    localStorage.clear();
+    window.location.href = "/login";
   };
+
   const selectImage = (img) => {
-    setFormData((prev) => {
-      return {
-        ...prev,
-        avatar: img,
-      };
-    });
+    setFormData(prev => ({ ...prev, avatar: img }));
+    setimageGallarys(false);
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
     try {
       const token = Cookies.get("token");
-      const userId = localStorage.getItem("id"); // This should already have the user _id from MongoDB.
-
-      if (!token || !userId) {
-        throw new Error("Authentication token or user ID not found");
-      }
-
-      // Prepare the data to send
-      const dataToSend = {
-        profile_picture: formData.avatar || "",
-        name: formData.name?.trim() || "",
-        bio: formData.bio, // Send bio as is
-        social_profiles: {
-          twitter: formData.twitter?.trim() || "",
-          facebook: formData.facebook?.trim() || "",
-          linkedin: formData.linkedin?.trim() || "",
-        },
-      };
+      const userId = localStorage.getItem("id");
+      if (!token || !userId) throw new Error("Authentication required");
 
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/user/my-profile/update/${userId}`,
@@ -121,216 +92,204 @@ const ProfileModal = ({ isOpen, onClose, userData }) => {
           method: "PUT",
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json", // Ensure content type is set
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify(dataToSend),
+          body: JSON.stringify({
+            profile_picture: formData.avatar || "",
+            name: formData.name?.trim() || "",
+            bio: formData.bio,
+            social_profiles: {
+              twitter: formData.twitter?.trim() || "",
+              facebook: formData.facebook?.trim() || "",
+              linkedin: formData.linkedin?.trim() || "",
+            },
+          }),
         }
       );
 
+      if (!response.ok) throw new Error("Update failed");
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || `Update failed: ${response.status}`);
-      }
-
-      if (data.user) {
-        // Update local storage
-        localStorage.setItem("name", data.user.name || "");
-
-        // Update form state with all fields including bio and social profiles
-        setFormData((prev) => ({
-          ...prev,
-          name: data.user.name || prev.name,
-
-          bio: data.user.bio || prev.bio,
-          avatar: data.user.profile_picture || "",
-          twitter: data.user.social_profiles?.twitter || prev.twitter,
-          facebook: data.user.social_profiles?.facebook || prev.facebook,
-          linkedin: data.user.social_profiles?.linkedin || prev.linkedin,
-        }));
-
-        toast.success("Profile updated successfully");
-      } else {
-        throw new Error("Invalid response format from server");
-      }
+      
+      localStorage.setItem("name", data.user.name || "");
+      toast.success("Profile updated");
+      onClose();
     } catch (err) {
-      console.error("Profile update error:", err);
-      setError(err.message || "Failed to update profile");
-      toast.error(err.message || "Failed to update profile");
+      console.error("Update error:", err);
+      toast.error(err.message || "Update failed");
     } finally {
       setLoading(false);
-      onClose();
     }
   };
+
   if (!isOpen) return null;
 
   return (
     <>
-      {imageGallarys === true && (
-        <ImageGalleryPopup onClose={setimageGallarys} onSelect={selectImage} />
+      {imageGallarys && (
+        <ImageGalleryPopup onClose={() => setimageGallarys(false)} onSelect={selectImage} />
       )}
+      
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-        <div className="bg-white rounded-xl shadow-xl max-w-lg w-full p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold text-gray-900">
-              Edit Profile
-            </h2>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-500"
-            >
-              <FaTimes className="w-5 h-5" />
+        <div 
+          ref={modalRef}
+          className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden border border-gray-200"
+        >
+          {/* Header */}
+          <div className="flex justify-between items-center p-4 border-b border-gray-200">
+            <h2 className="text-lg font-semibold text-yellow-700">Edit Profile</h2>
+            <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+              <FaTimes />
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Avatar Upload */}
-            <div className="flex justify-center">
-              <div className="relative">
-                <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100">
-                  <Image
-                    src={
-                      formData.avatar !== ""
-                        ? `${process.env.NEXT_PUBLIC_API_URL_IMG}/${formData.avatar}`
-                        : DEFAULT_AVATAR
-                    }
-                    alt={`${formData.avatar}`}
-                    width={100}
-                    height={100}
-                    quality={100}
-                    className="w-full h-full object-cover"
-                    onError={() => setPreviewUrl(DEFAULT_AVATAR)}
-                  />
+          {/* Compact Content */}
+          <div className="p-4 overflow-y-auto" style={{ maxHeight: '70vh' }}>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Avatar */}
+              <div className="flex justify-center -mt-2 mb-2">
+                <div className="relative">
+                  <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-white shadow-md">
+                    <Image
+                      src={formData.avatar ? `${process.env.NEXT_PUBLIC_API_URL_IMG}/${formData.avatar}` : AVATAR}
+                      alt="Profile"
+                      width={80}
+                      height={80}
+                      className="w-full h-full object-cover"
+                      onError={(e) => e.target.src = AVATAR}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setimageGallarys(true)}
+                    className="absolute bottom-0 right-0 bg-yellow-600 p-2 rounded-full text-white hover:bg-yellow-800"
+                  >
+                    <FaCamera className="text-xs" />
+                  </button>
                 </div>
+              </div>
+
+              {/* Input Fields with Material-UI TextField */}
+              <div className="space-y-3">
+                <TextField
+                  id="name-field"
+                  label="Name"
+                  variant="standard"
+                  fullWidth
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  required
+                  InputLabelProps={{
+                    style: { color: '#000' } // yellow-600
+                  }}
+                  InputProps={{
+                    style: { color: '#000' } // yellow-600
+                  }}
+                />
+
+                <TextField
+                  id="bio-field"
+                  label="Bio"
+                  variant="standard"
+                  fullWidth
+                  multiline
+                  rows={2}
+                  value={formData.bio}
+                  onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                  InputLabelProps={{
+                    style: { color: '#000' } // yellow-600
+                  }}
+                  InputProps={{
+                    style: { color: '#000' } // yellow-600
+                  }}
+                />
+
+                <div className="space-y-2 pt-2">
+                  <div className="flex items-end gap-2">
+                    <FaXTwitter className="text-gray-700 mb-1" />
+                    <TextField
+                      id="twitter-field"
+                      label="Twitter URL"
+                      variant="standard"
+                      fullWidth
+                      value={formData.twitter}
+                      onChange={(e) => setFormData({ ...formData, twitter: e.target.value })}
+                      InputLabelProps={{
+                        style: { color: '#000' } // yellow-600
+                      }}
+                      InputProps={{
+                        style: { color: '#000' } // yellow-600
+                      }}
+                    />
+                  </div>
+
+                  <div className="flex items-end gap-2">
+                    <FaFacebookF className="text-gray-700 mb-1" />
+                    <TextField
+                      id="facebook-field"
+                      label="Facebook URL"
+                      variant="standard"
+                      fullWidth
+                      value={formData.facebook}
+                      onChange={(e) => setFormData({ ...formData, facebook: e.target.value })}
+                      InputLabelProps={{
+                        style: { color: '#000' } // yellow-600
+                      }}
+                      InputProps={{
+                        style: { color: '#000' } // yellow-600
+                      }}
+                    />
+                  </div>
+
+                  <div className="flex items-end gap-2">
+                    <FaLinkedinIn className="text-gray-700 mb-1" />
+                    <TextField
+                      id="linkedin-field"
+                      label="LinkedIn URL"
+                      variant="standard"
+                      fullWidth
+                      value={formData.linkedin}
+                      onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
+                      InputLabelProps={{
+                        style: { color: '#000' } // yellow-600
+                      }}
+                      InputProps={{
+                        style: { color: '#000' } // yellow-600
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer Buttons */}
+              <div className="flex justify-between pt-4">
                 <button
                   type="button"
-                  onClick={takeImageFromImageGallary}
-                  className="absolute bottom-0 right-0 bg-blue-600 p-2 rounded-full text-white hover:bg-blue-700 transition-colors"
+                  onClick={handleLogout}
+                  className="flex items-center text-yellow-700 hover:text-yellow-800"
                 >
-                  <FaCamera className="w-4 h-4" />
+                  <FaSignOutAlt className="mr-1" />
+                  <span>Logout</span>
                 </button>
-              </div>
-            </div>
-
-            {/* Form Fields */}
-            <div className="space-y-4">
-              <div>
-                <label
-                  htmlFor="name"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Name
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => {
-                    setFormData((prev) => ({ ...prev, name: e.target.value }));
-                  }}
-                  className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-3 py-2"
-                  required
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="bio"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Bio
-                </label>
-                <textarea
-                  id="bio"
-                  name="bio"
-                  value={formData.bio}
-                  onChange={(e) => {
-                    setFormData((prev) => ({ ...prev, bio: e.target.value }));
-                  }}
-                  rows={3}
-                  className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-3 py-2"
-                  placeholder="Write something about yourself..."
-                />
-              </div>
-
-              <div className="space-y-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  Social Links
-                </label>
-
-                <div className="flex items-center">
-                  <span className="p-2 bg-gray-50 border border-r-0 border-gray-300 rounded-l-md">
-                    <FaXTwitter className="w-5 h-5 text-gray-400" />
-                  </span>
-                  <input
-                    type="url"
-                    value={formData.twitter}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        twitter: e.target.value,
-                      }))
-                    }
-                    placeholder="Twitter profile URL"
-                    className="flex-1 rounded-r-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-3 py-2"
-                  />
-                </div>
-
-                <div className="flex items-center">
-                  <span className="p-2 bg-gray-50 border border-r-0 border-gray-300 rounded-l-md">
-                    <FaFacebookF className="w-5 h-5 text-gray-400" />
-                  </span>
-                  <input
-                    type="url"
-                    value={formData.facebook}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        facebook: e.target.value,
-                      }))
-                    }
-                    placeholder="Facebook profile URL"
-                    className="flex-1 rounded-r-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-3 py-2"
-                  />
-                </div>
-
-                <div className="flex items-center">
-                  <span className="p-2 bg-gray-50 border border-r-0 border-gray-300 rounded-l-md">
-                    <FaLinkedinIn className="w-5 h-5 text-gray-400" />
-                  </span>
-                  <input
-                    type="url"
-                    value={formData.linkedin}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        linkedin: e.target.value,
-                      }))
-                    }
-                    placeholder="LinkedIn profile URL"
-                    className="flex-1 rounded-r-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-3 py-2"
-                  />
+                
+                <div className="space-x-2">
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="px-4 py-2 text-sm border border-gray-300 rounded hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="px-4 py-2 text-sm text-white bg-yellow-600 rounded hover:bg-yellow-800 disabled:opacity-70"
+                  >
+                    {loading ? "Saving..." : "Save"}
+                  </button>
                 </div>
               </div>
-            </div>
-
-            <div className="flex justify-end space-x-3">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-              >
-                {loading ? "Updating..." : "Update Profile"}
-              </button>
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
       </div>
     </>

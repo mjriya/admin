@@ -9,7 +9,8 @@ import { usePathname, useSearchParams } from "next/navigation";
 import useSidebarStore from "../store/useSidebarStore";
 import { useState } from "react";
 import { SiContentstack } from "react-icons/si";
-import SeriesOfStories from "./SeriesOfStories"
+import SeriesOfStories from "./SeriesOfStories";
+
 const contentTypes = [
   {
     name: "Content",
@@ -35,20 +36,19 @@ const PostSideBar = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams().toString();
   const { showPostSidebar, togglePostSidebar } = useSidebarStore();
-  const [openDropdown, setOpenDropdown] = useState(null); // Track which dropdown is open
-
-  const [activeLang, setActiveLang] = useState("bengali"); // Default active language
+  const [openDropdown, setOpenDropdown] = useState(null);
+  const [activeLang, setActiveLang] = useState("bengali");
 
   const handleDropdownToggle = (name) => {
     setOpenDropdown(openDropdown === name ? null : name);
   };
 
   return (
-    <div className="border-r h-screen">
-      <AnimatePresence>
+    <div className="border-r ">
+      <>
         {showPostSidebar && (
           <motion.div
-            className="w-full bg-white h-auto   px-4 py-6 z-45 overflow-hidden"
+            className="w-full bg-white h-auto px-4 py-6 z-45 "
             initial={{ width: 0, opacity: 0 }}
             animate={{
               width: "100%",
@@ -67,7 +67,7 @@ const PostSideBar = () => {
               },
             }}
           >
-            <div className="h-full overflow-y-auto scrollbar">
+            <div className="h-full ">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-semibold text-gray-800 mb-2 border-b-2 pb-2">
                   Content
@@ -82,24 +82,23 @@ const PostSideBar = () => {
               </div>
 
               <div className="space-y-1">
-                {contentTypes.map((contentType) => {
+                {contentTypes.map((contentType, index) => {
                   const isDropdownOpen = openDropdown === contentType.name;
                   return (
-                    <div key={contentType.name}>
+                    <div key={`${contentType.name}-${index}`}>
                       <button
                         onClick={() => handleDropdownToggle(contentType.name)}
-                        className={`flex items-center justify-between w-full p-2 rounded-lg transition-all duration-200 text-gray-700  hover:bg-gray-50 hover:text-gray-900 ${
-                          searchParams.split("=")[1] ==
-                          contentType.name.toLocaleLowerCase()
+                        className={`flex items-center justify-between w-full p-2 rounded-lg transition-all duration-200 text-gray-700 hover:bg-gray-50 hover:text-gray-900 ${
+                          searchParams.split("=")[1] === contentType.name.toLowerCase()
                             ? "bg-yellow-50 shadow text-yellow-800"
                             : ""
                         }`}
                       >
                         <div className="flex items-center gap-2">
-                          <div className=" rounded-md bg-gray-100 text-gray-500">
+                          <div className="rounded-md bg-gray-100 text-gray-500">
                             {contentType.icon}
                           </div>
-                          <div className={`text-sm font-bold `}>
+                          <div className="text-sm font-bold">
                             {contentType.name}
                           </div>
                         </div>
@@ -111,25 +110,24 @@ const PostSideBar = () => {
                       <AnimatePresence>
                         {isDropdownOpen && (
                           <motion.div
+                            key={`dropdown-${contentType.name}`}
                             initial={{ height: 0, opacity: 0 }}
                             animate={{ height: "auto", opacity: 1 }}
                             exit={{ height: 0, opacity: 0 }}
-                            className=" space-y-1"
+                            className="space-y-1"
                           >
-                            {contentType.href.map((link) => (
+                            {contentType.href.map((link, linkIndex) => (
                               <Link
-                                key={link.slug}
+                                key={`${link.slug}-${linkIndex}`}
                                 href={link.slug}
-                                onClick={() => setOpenDropdown(null)} // Close dropdown on click
-                                className={`items-center pl-2 hover:bg-zinc-100 rounded  flex gap-2 font-semibold capitalize  py-1 text-sm transition-all duration-200 ${
+                                onClick={() => setOpenDropdown(null)}
+                                className={`items-center pl-2 hover:bg-zinc-100 rounded flex gap-2 font-semibold capitalize py-1 text-sm transition-all duration-200 ${
                                   pathname === link.slug
                                     ? "text-blue-600"
                                     : "text-gray-600 hover:text-gray-900"
                                 }`}
                               >
-                                
                                 <SiContentstack className="text-yellow-700" />
-
                                 {link.type}
                               </Link>
                             ))}
@@ -145,29 +143,24 @@ const PostSideBar = () => {
         )}
         <div className="px-4 mt-3">
           <h1 className="text-xl pb-2 border-b inline-block">Series</h1>
-
           <div className="flex gap-3 my-2">
-            {["bengali", "hindi", "english"].map((lang) => (
+            {["bengali", "hindi", "english"].map((lang, index) => (
               <button
-                key={lang}
+                key={`${lang}-${index}`}
                 onClick={() => setActiveLang(lang)}
-                className={`px-2  rounded shadow transition-all capitalize
-            ${
-              activeLang === lang
-                ? "bg-yellow-50 border border-yellow-50 text-yellow-800 "
-                : "bg-gray-200 text-gray-800 hover:bg-gray-300 "
-            }`}
+                className={`px-2 rounded shadow transition-all capitalize ${
+                  activeLang === lang
+                    ? "bg-yellow-50 border border-yellow-50 text-yellow-800"
+                    : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                }`}
               >
                 {lang}
               </button>
             ))}
           </div>
-
-          <SeriesOfStories langue={activeLang}  />
+          <SeriesOfStories langue={activeLang} isDropdownOpen={openDropdown} />
         </div>
-      </AnimatePresence>
-
-     
+      </>
     </div>
   );
 };

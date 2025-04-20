@@ -6,7 +6,6 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const Page = () => {
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
@@ -48,20 +47,22 @@ const Page = () => {
   const handleForgotPassword = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/forgot-password`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email: forgotEmail }),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/user/forgot-password`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email: forgotEmail }),
+        }
+      );
 
       const data = await res.json();
 
       if (res.ok) {
         alert("Check your email for password reset instructions.");
         setShowForgotPassword(false);
-        
       } else {
         setForgotError(data.message || "Failed to send reset email.");
       }
@@ -72,14 +73,14 @@ const Page = () => {
   return (
     <div className="min-h-screen fixed w-full start-0 z-50 bg-gradient-to-br from-zinc-600 to-zinc-900 text-white lg:flex justify-center items-center p-4 gap-10">
       <ToastContainer />
-      
+
       {/* Logo/Branding */}
       <div className="text-center mb-8  ">
         <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-600">
           TrendVerse
         </h1>
         <p className="text-gray-300 mt-2">Discover Trends, Stories & More</p>
-        <h1 className="text-6xl" >😊</h1>
+        <h1 className="text-6xl">😊</h1>
       </div>
 
       {/* Login Card */}
@@ -147,10 +148,9 @@ const Page = () => {
 
           <button
             type="submit"
-           
             className="w-full py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white rounded-lg font-medium transition"
           >
-           Sign In
+            Sign In
           </button>
         </form>
       </div>
@@ -159,7 +159,9 @@ const Page = () => {
       {showForgotPassword && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center p-4 z-50">
           <div className="w-full max-w-md bg-gray-800 p-8 rounded-2xl border border-gray-700 shadow-xl">
-            <h3 className="text-2xl font-bold text-center mb-6">Reset Password</h3>
+            <h3 className="text-2xl font-bold text-center mb-6">
+              Reset Password
+            </h3>
 
             {forgotError && (
               <div className="mb-6 p-4 rounded-lg bg-red-500/10 border border-red-500/50 text-red-500 text-sm text-center">

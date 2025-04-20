@@ -1,33 +1,33 @@
 'use client';  // This tells Next.js that this component should only run in the browser
 
 import useAllSeriesDataStore from '../../../store/useAllSeriesDataStore';
-import Table from '../../../components/Table';
-import TableHeader from '../../../components/TableHeader';
+import SeriesTable from '../../../components/SeriesTable';
+import SeriesTableHeader from '../../../components/SeriesTableHeader';
 import React, { useEffect, useState } from 'react';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 
 const Page = () => {
-  const pathname = usePathname();  // Gets "/bengali"
+  const pathname = usePathname();
 
 
-  const { fetchAllSeriesPostedData,seriesLoading,allSeriesPosts,totalSeriesPages,currentSeriesPage,totalSeriesPostCount } = useAllSeriesDataStore();
+  const { fetchAllSeriesPostedData, seriesLoading, allSeriesPosts, totalSeriesPages, currentSeriesPage, totalSeriesPostCount } = useAllSeriesDataStore();
   const [currentPage, setCurrentPage] = useState(1);
   const [status, setStatus] = useState('published'); // Default status
   const limit = 15;
 
-  // Function to update data when status or page changes
   const fetchData = () => {
 
-    let url = `${process.env.NEXT_PUBLIC_API_URL}/series/${status}/${pathname.split("/")[2]}?limit=${limit}&page=${currentPage}`;
-    
-    fetchAllPostedData(url, 'bengali');
-    
+    let url = `${process.env.NEXT_PUBLIC_API_URL}/series/${status}/${pathname.split("/")[2].split("--")[1]}?limit=${limit}&page=${currentPage}`;
+
+    fetchAllSeriesPostedData(url);
+
 
   };
 
-  // useEffect hook ensures fetchData runs only on the client
   useEffect(() => {
-    fetchAllSeriesPostedData();
+   
+
+    fetchData()
   }, [currentPage, status]);
 
   // Only execute scroll logic on the client
@@ -47,8 +47,8 @@ const Page = () => {
     <div className=' min-h-screen'>
       <div className='max-w-7xl mx-auto p-4'>
         <div className=' rounded-lg shadow'>
-          <TableHeader
-           
+          <SeriesTableHeader
+
             currentPage={currentSeriesPage}
             loading={seriesLoading}
             totalPages={totalSeriesPages}
@@ -58,13 +58,13 @@ const Page = () => {
             status={status} // Pass current status
           />
           <div className="overflow-x-auto">
-            <Table
+            <SeriesTable
               posts={allSeriesPosts}
               loading={seriesLoading}
-              type={'bengali'}
+              type={pathname.split("/")[2].split("--")[0]}
               status={status}
               fetchData={fetchData}
-              parentId={pathname.split("/")[2]}
+              parentId={pathname.split("/")[2].split("--")[1]}
               onStatusChange={handleStatusChange} // Optionally pass this to Table for status-specific actions
             />
           </div>

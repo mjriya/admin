@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import useDropDownDataStore from '../store/dropDownDataStore';
+import TextField from '@mui/material/TextField';
 
 // Dynamically import react-select to avoid SSR issues
 const Select = dynamic(() => import('react-select'), {
@@ -9,23 +10,17 @@ const Select = dynamic(() => import('react-select'), {
   loading: () => null
 });
 
-function RestOfPostEdit({ formData, handleChange }) {
-  const { allTags, allCategory, allRoleBaseUser, fetchDropDownData } = useDropDownDataStore();
+function SeriesRestOfPostEdit({ formData, handleChange }) {
+  const { allCategory, allRoleBaseUser, fetchDropDownData } = useDropDownDataStore();
   
   useEffect(() => {
     fetchDropDownData(`${process.env.NEXT_PUBLIC_API_URL}/category`, 'category');
-    fetchDropDownData(`${process.env.NEXT_PUBLIC_API_URL}/tag`, 'tag');
     fetchDropDownData(`${process.env.NEXT_PUBLIC_API_URL}/user`, 'roleBaseUser');
   }, [fetchDropDownData]);
 
   const categoryOptions = allCategory.map((cat) => ({
     value: cat._id,
     label: cat.name,
-  }));
-
-  const tagOptions = allTags.map((tag) => ({
-    value: tag._id,
-    label: tag.name,
   }));
 
   const creditOptions = allRoleBaseUser.map((role) => ({
@@ -62,24 +57,24 @@ function RestOfPostEdit({ formData, handleChange }) {
   return (
     <div className="w-full rounded-xl border border-gray-100 bg-white shadow-sm">
       <div className="p-6 border-b border-gray-100">
-        <h2 className="text-xl font-semibold text-gray-800">Post Properties</h2>
+        <h2 className="text-xl font-semibold text-gray-800">Series Properties</h2>
       </div>
       
       <div className="p-6 space-y-6">
         <div className="space-y-2 w-full">
-          <label className="block text-sm font-medium text-gray-700">
-            Primary Category <span className="text-red-500">*</span>
-          </label>
-          <Select
-            instanceId="primary-category-select"
-            value={formData.primaryCategory}
-            onChange={(value) => handleChangeFromData(value, 'primaryCategory')}
-            options={categoryOptions}
-            className="basic-single"
-            classNamePrefix="select"
-            isClearable
-            placeholder="Select Primary Category"
-            styles={selectStyles}
+          <TextField
+            label="Part Number"
+            type="number"
+            variant="standard"
+            fullWidth
+            value={formData.part || ''}
+            onChange={(e) => handleChangeFromData(parseInt(e.target.value), 'part')}
+            InputLabelProps={{
+              style: { color: '#373636' }
+            }}
+            InputProps={{
+              style: { color: '#373636' }
+            }}
           />
         </div>
 
@@ -102,23 +97,6 @@ function RestOfPostEdit({ formData, handleChange }) {
 
         <div className="space-y-2 w-full">
           <label className="block text-sm font-medium text-gray-700">
-            Tags
-          </label>
-          <Select
-            instanceId="tags-select"
-            isMulti
-            value={formData.tags}
-            onChange={(value) => handleChangeFromData(value, 'tags')}
-            options={tagOptions}
-            className="basic-multi-select"
-            classNamePrefix="select"
-            placeholder="Select Tags"
-            styles={selectStyles}
-          />
-        </div>
-
-        <div className="space-y-2 w-full">
-          <label className="block text-sm font-medium text-gray-700">
             Credits <span className="text-red-500">*</span>
           </label>
           <Select
@@ -135,15 +113,18 @@ function RestOfPostEdit({ formData, handleChange }) {
         </div>
 
         <div className="space-y-2 w-full">
-          <label className="block text-sm font-medium text-gray-700">
-            Focus Keyphrase
-          </label>
-          <input
-            type="text"
+          <TextField
+            label="Focus Keyphrase"
+            variant="standard"
+            fullWidth
             value={formData.focusKeyphrase}
             onChange={(e) => handleChangeFromData(e.target.value, 'focusKeyphrase')}
-            className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150"
-            placeholder="Enter focus keyphrase"
+            InputLabelProps={{
+              style: { color: '#373636' }
+            }}
+            InputProps={{
+              style: { color: '#373636' }
+            }}
           />
         </div>
       </div>
@@ -151,4 +132,4 @@ function RestOfPostEdit({ formData, handleChange }) {
   );
 }
 
-export default RestOfPostEdit;
+export default SeriesRestOfPostEdit;
