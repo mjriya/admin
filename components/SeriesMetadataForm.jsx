@@ -13,7 +13,7 @@ const SeriesMetadataForm = ({ formData, onChange }) => {
           name="title"
           value={formData.title}
           onChange={onChange}
-          variant="outlined"
+          variant="standard"
           required
         />
         
@@ -23,7 +23,7 @@ const SeriesMetadataForm = ({ formData, onChange }) => {
           name="slug"
           value={formData.slug}
           onChange={onChange}
-          variant="outlined"
+          variant="standard"
           helperText="Only lowercase letters, numbers, and hyphens"
         />
         

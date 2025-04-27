@@ -55,7 +55,7 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-10 px-4">
           <Link href="/" className="flex items-center gap-2 my-7">
             <span className="text-[15px] font-medium text-gray-800">
-             MJ
+             MAN
             </span>
           </Link>
 

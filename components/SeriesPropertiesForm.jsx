@@ -26,9 +26,9 @@ const SeriesPropertiesForm = ({ formData, onChange, onSelectChange }) => {
           name="part"
           value={formData.part}
           onChange={onChange}
-          variant="outlined"
+          variant="filled"
           inputProps={{ min: 1 }}
-          required
+          disabled
         />
         
         <div>

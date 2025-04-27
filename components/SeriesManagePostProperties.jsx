@@ -11,17 +11,16 @@ import SeriesPropertiesForm from "./SeriesPropertiesForm";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-function SeriesManagePostProperties({child, parent }) {
+function SeriesManagePostProperties({ child, parent }) {
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  
-  // Get IDs from props or URL
-  const parentsId = parent || pathname.split("/")[2];
-  const id = child || pathname.split("/")[3];
-  const isNew = id === "new-post";
+  const [htmlContent, setHtmlContent] = useState("");
+  const parentsId = parent || pathname.split("/")[3];
+  const initialId = child || pathname.split("/")[4];
+  const [id, setId] = useState(initialId);
+  const isNewPost = initialId === "0";
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  // State management
   const [formData, setFormData] = useState({
     parent_id: parentsId,
     title: "",
@@ -31,17 +30,16 @@ function SeriesManagePostProperties({child, parent }) {
     credits: [],
     focusKeyphrase: "",
     seo_desc: "",
-    content: "",
     status: "draft",
-    additionalCategories: []
+    additionalCategories: [],
   });
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentStatus, setCurrentStatus] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const debounceTimeout = useRef(null);
 
-  // Toast notifications
-  const showToast = (message, type = "success") => {
+  const showToast = useCallback((message, type = "success") => {
     toast[type](message, {
       position: "top-right",
       autoClose: 3000,
@@ -50,61 +48,83 @@ function SeriesManagePostProperties({child, parent }) {
       pauseOnHover: true,
       draggable: true,
     });
-  };
+  }, []);
 
-  // Fetch series data
   const fetchSeriesData = useCallback(async () => {
-    if (id===0)return;
+    if (isNewPost) {
+      setIsInitialized(true);
+      return;
+    }
 
     try {
       const response = await fetch(`${API_URL}/series/${id}`);
-      if (!response.ok) throw new Error("Failed to fetch series");
-      
-      const data = await response.json();
-      const series = data.series || data.article; // Handle different response structures
+      if (!response.ok) {
+        throw new Error(
+          response.status === 404
+            ? "Series not found"
+            : "Failed to fetch series"
+        );
+      }
 
+      const data = await response.json();
+      const series = data || {};
+
+      setHtmlContent(series.content || "");
+      console.log("series", series);
       setFormData({
-        parent_id: series.parent_id,
+        parent_id: series.parent_id || parentsId,
         title: series.title || "",
         slug: series.slug || "",
         part: series.part || 1,
         summary: series.summary || "",
-        credits: series.credits?.map(c => ({ value: c._id, label: c.name })) || [],
+        credits: series.credits
+          ? series.credits.map((credit) => ({
+              value: credit._id,
+              label: credit.name,
+            }))
+          : [],
+        // credits: series.credits?.map((c) => ({
+        //   value: typeof c === "string" ? c : c._id,
+        //   label: typeof c === "string" ? c : c.name,
+        // })) || [],
         focusKeyphrase: series.focusKeyphrase || "",
         seo_desc: series.seo_desc || "",
-        content: series.content || "",
         status: series.status || "draft",
-        additionalCategories: series.additionalCategories?.map(c => ({ value: c._id, label: c.name })) || []
+        additionalCategories:
+          series.additionalCategories?.map((c) => ({
+            value: typeof c === "string" ? c : c._id,
+            label: typeof c === "string" ? c : c.name,
+          })) || [],
       });
+      setIsInitialized(true);
     } catch (error) {
       showToast(error.message, "error");
       console.error("Fetch error:", error);
     }
-  }, [id, isNew, searchParams]);
+  }, [isNewPost, parentsId, showToast]);
 
-  // Initialize data
   useEffect(() => {
-    fetchSeriesData();
-  }, [fetchSeriesData]);
+    if (!isInitialized) {
+      fetchSeriesData();
+    }
+  }, [fetchSeriesData, isInitialized]);
 
-  // Form handlers
-  const handleChange = (e) => {
+  const handleChange = useCallback((e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
     setIsEditing(true);
-  };
+  }, []);
 
-  const handleSelectChange = (selected, field) => {
-    setFormData(prev => ({ ...prev, [field]: selected }));
+  const handleSelectChange = useCallback((selected, field) => {
+    setFormData((prev) => ({ ...prev, [field]: selected }));
     setIsEditing(true);
-  };
+  }, []);
 
-  const handleContentChange = (content) => {
-    setFormData(prev => ({ ...prev, content }));
+  const handleContentChange = useCallback((content) => {
+    setHtmlContent(content);
     setIsEditing(true);
-  };
+  }, []);
 
-  // Debounced auto-save
   const debounceSubmit = useCallback((callback) => {
     if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
     debounceTimeout.current = setTimeout(callback, 2000);
@@ -112,25 +132,25 @@ function SeriesManagePostProperties({child, parent }) {
 
   useEffect(() => {
     if (isEditing) {
-      debounceSubmit(() => submitData("draft"));
+      debounceSubmit(() => {
+        submitData("draft");
+      });
     }
-  }, [formData, isEditing, debounceSubmit]);
 
-  // Submit handler
+    return () => {
+      if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+    };
+  }, [formData, htmlContent, isEditing, debounceSubmit]);
+ 
   const submitData = async (status) => {
-    if (isSubmitting) return;
-    
+    if (isSubmitting || !isInitialized) return;
+
     try {
       setIsSubmitting(true);
       setCurrentStatus(status);
 
-      // Validate required fields
       if (!formData.parent_id) {
         showToast("Parent series is required", "error");
-        return;
-      }
-      if (!formData.part || formData.part < 1) {
-        showToast("Part number must be at least 1", "error");
         return;
       }
       if (!formData.title.trim()) {
@@ -144,28 +164,38 @@ function SeriesManagePostProperties({child, parent }) {
         return;
       }
 
-      // Prepare payload
       const payload = {
-        ...formData,
-        status,
-        credits: formData.credits.map(c => c.value),
-        additionalCategories: formData.additionalCategories.map(c => c.value),
-        slug: formData.slug.trim().toLowerCase().replace(/\s+/g, "-")
+        parent_id: formData.parent_id,
+        title: formData.title,
+        slug: formData.slug.trim().toLowerCase().replace(/\s+/g, "-"),
+        summary: formData.summary,
+        credits: formData.credits.map((c) => c.value),
+        focusKeyphrase: formData.focusKeyphrase,
+        seo_desc: formData.seo_desc,
+        content: htmlContent,
+        status: status,
+        additionalCategories: formData.additionalCategories.map((c) => c.value),
       };
 
-      const url = isNew 
-        ? `${API_URL}/series/create?${searchParams.toString()}`
-        : `${API_URL}/series/update/${id}?${searchParams.toString()}`;
-      
-      const method = isNew ? "POST" : "PUT";
+      if (isNewPost) {
+        payload.part = formData.part;
+      }
+
+      const url =
+        (isNewPost && id === "0")
+          ? `${API_URL}/series/${parentsId}`
+          : `${API_URL}/series/update/${id}`;
+
+
+      const method = (isNewPost && id === "0") ? "POST" : "PUT";
 
       const response = await fetch(url, {
         method,
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -175,15 +205,22 @@ function SeriesManagePostProperties({child, parent }) {
 
       const result = await response.json();
       const savedSeries = result.series || result.article;
-
-      // Update ID if this was a new post
-      if (isNew) {
-        router.replace(`/series/edit/${parentsId}/${savedSeries._id}`);
+      console.log("savedSeries", savedSeries);
+      if (isNewPost) {
+        setId(savedSeries._id);
+        setFormData(prevFormData => ({
+          ...prevFormData,
+          part: savedSeries.part
+        }));
+      }
+      if (status !== "draft") {
+        showToast(
+          `Series part ${
+            status === "published" ? "published" : "submitted for approval"
+          } successfully`
+        );
       }
 
-      showToast(
-        `Series part ${status === "draft" ? "saved" : status === "published" ? "published" : "updated"} successfully`
-      );
       setIsEditing(false);
     } catch (error) {
       showToast(error.message, "error");
@@ -194,84 +231,123 @@ function SeriesManagePostProperties({child, parent }) {
     }
   };
 
-  // Action buttons
-  const ActionButton = ({ status, label, color }) => (
-    <button
-      disabled={isSubmitting}
-      className={`px-4 py-2 text-sm font-medium rounded ${
-        isSubmitting && currentStatus === status
-          ? `bg-${color}-300 cursor-not-allowed`
-          : `bg-${color}-600 hover:bg-${color}-700 text-white`
-      }`}
-      onClick={() => submitData(status)}
-    >
-      {isSubmitting && currentStatus === status ? (
-        <span className="flex items-center justify-center">
-          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          Processing...
-        </span>
-      ) : (
-        label
-      )}
-    </button>
-  );
+  const ActionButton = ({ status, label, color }) => {
+    const colorMap = {
+      gray: {
+        enabled: "bg-gray-600 hover:bg-gray-700",
+        disabled: "bg-gray-300",
+      },
+      blue: {
+        enabled: "bg-blue-600 hover:bg-blue-700",
+        disabled: "bg-blue-300",
+      },
+      green: {
+        enabled: "bg-green-600 hover:bg-green-700",
+        disabled: "bg-green-300",
+      },
+    };
+
+    const isProcessing = isSubmitting && currentStatus === status;
+
+    return (
+      <button
+        disabled={isSubmitting}
+        className={`px-4 py-2 text-sm font-medium rounded text-white ${
+          isProcessing ? colorMap[color].disabled : colorMap[color].enabled
+        }`}
+        onClick={() => submitData(status)}
+      >
+        {isProcessing ? (
+          <span className="flex items-center justify-center">
+            <svg
+              className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+            Processing...
+          </span>
+        ) : (
+          label
+        )}
+      </button>
+    );
+  };
+
+  if (!isInitialized) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       <ToastContainer />
-      
-      {/* Header */}
+
       <div className="sticky top-0 z-40 bg-white border-b shadow-sm">
         <div className="px-4 sm:px-6 py-3">
           <div className="flex justify-between items-center">
             <button
-              className="flex items-center gap-1 px-3 py-1 border rounded text-gray-600 text-sm"
+              className="flex items-center gap-1 px-3 py-1 border rounded text-gray-600 text-sm hover:bg-gray-50"
               onClick={() => router.back()}
             >
               <IoMdArrowBack /> Back
             </button>
-            
+
             <div className="flex gap-2">
               <ActionButton status="draft" label="Save Draft" color="gray" />
-              <ActionButton status="pending_approval" label="Submit for Approval" color="blue" />
+              <ActionButton
+                status="pending_approval"
+                label="Submit for Approval"
+                color="blue"
+              />
               <ActionButton status="published" label="Publish" color="green" />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="flex-1 p-4 md:p-6">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - Metadata */}
-          <div className="lg:col-span-2 space-y-6">
-            <SeriesMetadataForm
-              formData={formData}
-              onChange={handleChange}
-            />
-            
-            {/* Content Editor */}
+        
+          <div className="flex flex-col gap-4">
+            <SeriesMetadataForm formData={formData} onChange={handleChange} />
+
             <div className="bg-white p-6 rounded-lg shadow">
               <h2 className="text-lg font-semibold mb-4">Content</h2>
               <RichTextEditor
-                content={formData.content}
-                onChange={handleContentChange}
+                key={id} // Ensure fresh instance when ID changes
+                content={htmlContent}
+                htmlContentGrab={handleContentChange}
               />
             </div>
-          </div>
-          
-          {/* Right Column - Properties */}
-          <div className="space-y-6">
+            <div className="">
             <SeriesPropertiesForm
               formData={formData}
               onSelectChange={handleSelectChange}
               onChange={handleChange}
+              isNewPost={isNewPost}
             />
           </div>
-        </div>
+          </div>
+
+         
+       
       </div>
     </div>
   );

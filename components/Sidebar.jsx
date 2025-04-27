@@ -22,7 +22,9 @@ const Sidebar = () => {
   const pathname = usePathname();
 
   useEffect(() => {
-    if (pathname.startsWith('/posts/')) {
+    if (pathname.startsWith("/posts/")) {
+      togglePostSidebar(true);
+    } else if (pathname.startsWith("/series/")) {
       togglePostSidebar(true);
     } else {
       togglePostSidebar(false);
@@ -35,15 +37,45 @@ const Sidebar = () => {
   };
 
   const menuItems = [
-    { name: "Home", icon: FaHome, link: "/#", onClick: () => togglePostSidebar(false) },
-    { name: "Content", icon: FaRegEdit, link: "/posts/bengali?content=content", onClick: handlePostsClick },
-    { name: "Gallery", icon: MdOutlinePermMedia, link: "/gallery", onClick: () => togglePostSidebar(false) },
-    { name: "Categories", icon: TbCategoryPlus, link: "/categories", onClick: () => togglePostSidebar(false) },
-    { name: "Configuration", icon: FaCog, link: "/configuration", onClick: () => togglePostSidebar(false) },
-    { name: "Team", icon: FaUsers, link: "/team", onClick: () => togglePostSidebar(false) },
-  ].map(item => ({
+    {
+      name: "Home",
+      icon: FaHome,
+      link: "/#",
+      onClick: () => togglePostSidebar(false),
+    },
+    {
+      name: "Content",
+      icon: FaRegEdit,
+      link: "/posts/bengali?content=content",
+      onClick: handlePostsClick,
+    },
+    {
+      name: "Gallery",
+      icon: MdOutlinePermMedia,
+      link: "/gallery",
+      onClick: () => togglePostSidebar(false),
+    },
+    {
+      name: "Categories",
+      icon: TbCategoryPlus,
+      link: "/categories",
+      onClick: () => togglePostSidebar(false),
+    },
+    {
+      name: "Configuration",
+      icon: FaCog,
+      link: "/configuration",
+      onClick: () => togglePostSidebar(false),
+    },
+    {
+      name: "Team",
+      icon: FaUsers,
+      link: "/team",
+      onClick: () => togglePostSidebar(false),
+    },
+  ].map((item) => ({
     ...item,
-    onClick: item.onClick || (() => togglePostSidebar(false))
+    onClick: item.onClick || (() => togglePostSidebar(false)),
   }));
 
   return (
@@ -95,7 +127,7 @@ const Sidebar = () => {
       </ul>
       {/* Sidebar Toggle Button */}
       <button
-        onClick={()=>toggleSidebar(!collapsed )}
+        onClick={() => toggleSidebar(!collapsed)}
         className="p-4 text-gray-500 hover:text-gray-700"
         aria-label="Toggle Sidebar"
       >
