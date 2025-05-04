@@ -70,7 +70,6 @@ function SeriesManagePostProperties({ child, parent }) {
       const series = data || {};
 
       setHtmlContent(series.content || "");
-      console.log("series", series);
       setFormData({
         parent_id: series.parent_id || parentsId,
         title: series.title || "",
@@ -205,7 +204,6 @@ function SeriesManagePostProperties({ child, parent }) {
 
       const result = await response.json();
       const savedSeries = result.series || result.article;
-      console.log("savedSeries", savedSeries);
       if (isNewPost) {
         setId(savedSeries._id);
         setFormData(prevFormData => ({

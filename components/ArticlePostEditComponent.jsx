@@ -1,6 +1,8 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import TextField from "@mui/material/TextField";
+import Image from "next/image";
+import ImageGalleryPopup from "./ImageGalleryPopup";
 
 const ArticlePostEditComponent = ({
   handleArticleFromData,
@@ -9,7 +11,19 @@ const ArticlePostEditComponent = ({
   const handleTitleChange = (e) => {
     handleArticleFromData("title", e.target.value);
   };
+  const [gallery, setGallery] = useState(false);
+  const toggleGalleyButton=(value) => {
+    setGallery(value);
+  };
+  const handleBanner_descDescriptionChange = (e) => {
+    const value = e.target.value;
+    handleArticleFromData("banner_desc", value);
+  };
 
+  const handleBanner_caption = (banner_caption) => {
+    handleArticleFromData("banner_caption", banner_caption.target.value);
+  };
+  
   const handleEnglishTitleChange = (e) => {
     handleArticleFromData("slug", e.target.value);
   };
@@ -21,8 +35,26 @@ const ArticlePostEditComponent = ({
   const handleMetaDescriptionChange = (e) => {
     handleArticleFromData("seo_desc", e.target.value);
   };
-
+  const selecttedImageForBanner = (filename) => {
+    
+    handleArticleFromData("banner_image", filename);
+  };
+  const handleImageAltText = (altText) => {
+    handleArticleFromData("banner_desc", altText);
+  };
   return (
+    <>
+    {gallery && (
+        <ImageGalleryPopup
+        onSelect={selecttedImageForBanner}
+        onImageSelect={(url, altText) => {
+          selecttedImageForBanner(url);
+          handleImageAltText(altText);
+          setGallery(false); // Directly close the popup
+        }}
+        onClose={() => setGallery(false)} // Directly close the popup
+      />
+      )}
     <div className="bg-white p-6 rounded-lg shadow-md">
       {/* Title */}
       <div className="mb-4">
@@ -109,7 +141,87 @@ const ArticlePostEditComponent = ({
           {formDataPostEdit.seo_desc ? formDataPostEdit.seo_desc.length : 0} / 160
         </div>
       </div>
+
+
+
+
+      <div className="mb-4">
+        <label
+          htmlFor="featuredImage"
+          className="block text-sm font-medium text-gray-700"
+        >
+          Featured Image
+        </label>
+
+       
+          <div
+            className={`flex items-center justify-center w-full h-40 mt-1 border rounded-md cursor-pointer `}
+            onClick={()=>toggleGalleyButton(true)}
+          >
+            <label
+              htmlFor="featuredImage"
+              className="flex items-center justify-center w-full h-full"
+            >
+              {formDataPostEdit.banner_image ? (
+                <Image
+                  src={`${formDataPostEdit.banner_image}`}
+                  alt={formDataPostEdit.banner_desc}
+                  width={500}
+                  height={400}
+                  className="object-cover w-full h-full rounded-md"
+                />
+              ) : (
+                <>
+                  <p className="mt-2 text-sm text-gray-500 text-center">
+                    Add Featured Image
+                    <br />
+                    Recommended Size: 1280x720
+                  </p>
+                </>
+              )}
+            </label>
+          </div>
+        
+          <div className="flex gap-5">
+            <input
+              type="text"
+              onChange={handleBanner_descDescriptionChange}
+              value={formDataPostEdit.banner_desc}
+              placeholder="Alt Text"
+              className="mt-4 border border-dashed rounded outline-none focus:outline-none px-5 py-1 w-1/2 border-gray-100 bg-gray-100 mx-auto"
+            />
+            <input
+              type="text"
+              onChange={handleBanner_caption}
+              value={formDataPostEdit.banner_caption}
+              placeholder="Banner Caption"
+              className="mt-4 border border-dashed rounded outline-none focus:outline-none px-5 py-1 w-1/2 border-gray-100 bg-gray-100 mx-auto"
+            />
+          </div>
+          
+        
+      </div>
     </div>
+
+
+
+</>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
   );
 };
 

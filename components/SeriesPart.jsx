@@ -466,7 +466,7 @@ function SeriesPart() {
               .then((response) => response.json()) // Convert the response to JSON
               .then((data) => {
                 // Handle the response data here
-                console.log("Success:", data);
+                console.log("Success:");
               })
               .catch((error) => {
                 // Handle errors here

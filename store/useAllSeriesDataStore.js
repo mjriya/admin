@@ -40,7 +40,6 @@ const useAllSeriesDataStore = create((set, get) => ({
             }
 
             const data = await response.json();
-            console.log("data", data)
             // If this is a pending approval request, update the pending count
             if (url.includes('pending-approval')) {
                 set(() => ({

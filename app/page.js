@@ -17,7 +17,7 @@ const EmptyDrafts = () => (
     </p>
     <Link
       href="/content/bengali"
-      className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
+      className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-yellow-600 rounded-md hover:bg-yellow-700 transition-colors"
     >
       <AiOutlinePlus className="w-4 h-4" />
       Create New Post
@@ -54,7 +54,7 @@ const HomePage = () => {
         setUser(userData);
 
         const draftsResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/my-posts?status=draft`,
+          `${process.env.NEXT_PUBLIC_API_URL}/posts/bengali?content=content`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -97,7 +97,7 @@ const HomePage = () => {
         <div className="mb-8">
           <div className="mb-3">
             <h2 className="text-lg font-semibold text-gray-800">
-              Recent Drafts
+              Recent Content
             </h2>
           </div>
 

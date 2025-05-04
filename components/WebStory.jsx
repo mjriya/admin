@@ -98,7 +98,7 @@ const WebStoryEditor = ({ content, htmlJsonGrab }) => {
       {/* Add Button */}
       <button
         onClick={handleAdd}
-        className="mt-4 px-4 py-2 flex items-center gap-2 bg-yellow-400 hover:bg-yellow-700 text-black hover:text-white rounded-lg shadow-md border-
+        className="mt-4 px-4 py-2 flex items-center gap-2 Text-yellow-400 text-yellow-600 hover:text-yellow-700 bg-yellow-550 rounded-lg shadow-md border-
         -700"
       >
         <FaCirclePlus />

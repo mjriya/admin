@@ -12,26 +12,26 @@ import AVATAR from "../public/avatar.png";
 const ProfileModal = ({ isOpen, onClose, userData }) => {
   const modalRef = useRef(null);
   const [formData, setFormData] = useState({
-    name: userData?.data?.name || "",
-    avatar: userData?.data?.profile_picture || "",
-    bio: userData?.data?.bio || "",
-    twitter: userData?.data?.social_profiles?.twitter || "",
-    facebook: userData?.data?.social_profiles?.facebook || "",
-    linkedin: userData?.data?.social_profiles?.linkedin || "",
+    name: userData?.name || "",
+    avatar: userData?.profile_picture || "",
+    bio: userData?.bio || "",
+    twitter: userData?.social_profiles?.twitter || "",
+    facebook: userData?.social_profiles?.facebook || "",
+    linkedin: userData?.social_profiles?.linkedin || "",
   });
   
   const [imageGallarys, setimageGallarys] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (modalRef.current && !modalRef.current.contains(event.target)) {
-        onClose();
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [onClose]);
+  // useEffect(() => {
+  //   const handleClickOutside = (event) => {
+  //     if (modalRef.current && !modalRef.current.contains(event.target)) {
+  //       onClose();
+  //     }
+  //   };
+  //   document.addEventListener("mousedown", handleClickOutside);
+  //   return () => document.removeEventListener("mousedown", handleClickOutside);
+  // }, [onClose]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -74,6 +74,7 @@ const ProfileModal = ({ isOpen, onClose, userData }) => {
   };
 
   const selectImage = (img) => {
+    alert(img);
     setFormData(prev => ({ ...prev, avatar: img }));
     setimageGallarys(false);
   };
@@ -87,7 +88,7 @@ const ProfileModal = ({ isOpen, onClose, userData }) => {
       if (!token || !userId) throw new Error("Authentication required");
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/user/my-profile/update/${userId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/user/my-profile/update`,
         {
           method: "PUT",
           headers: {
@@ -110,7 +111,7 @@ const ProfileModal = ({ isOpen, onClose, userData }) => {
       if (!response.ok) throw new Error("Update failed");
       const data = await response.json();
       
-      localStorage.setItem("name", data.user.name || "");
+      localStorage.setItem("name", data.name || "");
       toast.success("Profile updated");
       onClose();
     } catch (err) {
@@ -150,7 +151,7 @@ const ProfileModal = ({ isOpen, onClose, userData }) => {
                 <div className="relative">
                   <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-white shadow-md">
                     <Image
-                      src={formData.avatar ? `${process.env.NEXT_PUBLIC_API_URL_IMG}/${formData.avatar}` : AVATAR}
+                      src={formData.avatar ? `${formData.avatar}` : AVATAR}
                       alt="Profile"
                       width={80}
                       height={80}

@@ -17,23 +17,17 @@ const ImageGalleryPopup = ({ onSelect, onClose, onImageSelect }) => {
   const [imagePreview, setImagePreview] = useState(null);
   const [imageUploadAlt, setImageUploadAlt] = useState("");
 
-
-
-
   const fetchImages = async (url) => {
     setIsLoading(true);
     try {
       const token = Cookies.get("token");
-      const response = await fetch(
-        url,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
       const data = await response.json();
       setImages(data.images || []);
       setTotalPages(data.total);
@@ -46,32 +40,43 @@ const ImageGalleryPopup = ({ onSelect, onClose, onImageSelect }) => {
       setIsLoading(false);
     }
   };
+  const handleSearch = () => {
+    // Reset to first page when performing a new search
+    setCurrentPage(1);
+
+    if (searchQuery === "") {
+      const url = `${process.env.NEXT_PUBLIC_API_URL}/media/img?limit=8&page=${currentPage}`;
+      fetchImages(url);
+    } else {
+      const url = `${process.env.NEXT_PUBLIC_API_URL}/media/img/search?alt=${searchQuery}&limit=8&page=${currentPage}`;
+      fetchImages(url);
+    }
+  };
   useEffect(() => {
     let debounceTimeout;
 
     if (searchQuery === "") {
-      // If searchQuery is empty, call the main API immediately
       const url = `${process.env.NEXT_PUBLIC_API_URL}/media/img?limit=8&page=${currentPage}`;
       fetchImages(url);
     } else {
-      // If searchQuery changes, delay the API call by 800ms
-      debounceTimeout = setTimeout(() => {
-        const url = `${process.env.NEXT_PUBLIC_API_URL}/media/search?alt=${searchQuery}&limit=8&page=${currentPage}`;
-        fetchImages(url);
-      }, 800);
+      const url = `${process.env.NEXT_PUBLIC_API_URL}/media/search?alt=${searchQuery}&limit=8&page=${currentPage}`;
+      fetchImages(url);
     }
 
-    return () => clearTimeout(debounceTimeout); // Cleanup the timeout
-  }, [searchQuery]);
+    return () => {
+      clearTimeout(debounceTimeout);
+    };
+  }, [currentPage]); // Combine dependencies
 
-  useEffect(() => {
-    // Fetch images immediately when currentPage changes
-    const url = searchQuery === ""
-      ? `${process.env.NEXT_PUBLIC_API_URL}/media/img?limit=8&page=${currentPage}`
-      : `${process.env.NEXT_PUBLIC_API_URL}/media/search?alt=${searchQuery}&limit=8&page=${currentPage}`;
+  // useEffect(() => {
+  //   // Fetch images immediately when currentPage changes
+  //   const url =
+  //     searchQuery === ""
+  //       ? `${process.env.NEXT_PUBLIC_API_URL}/media/img?limit=8&page=${currentPage}`
+  //       : `${process.env.NEXT_PUBLIC_API_URL}/media/search?alt=${searchQuery}&limit=8&page=${currentPage}`;
 
-    fetchImages(url);
-  }, [currentPage]);
+  //   fetchImages(url);
+  // }, [currentPage]);
 
   const handleImageClick = (img) => {
     setSelectedImage(img);
@@ -96,9 +101,7 @@ const ImageGalleryPopup = ({ onSelect, onClose, onImageSelect }) => {
     }));
 
     if (onImageSelect) {
-      onImageSelect(`${selectedImage}`,
-        altText.trim()
-      );
+      onImageSelect(`${selectedImage}`, altText.trim());
     }
     if (onSelect) {
       onSelect(selectedImage);
@@ -147,12 +150,13 @@ const ImageGalleryPopup = ({ onSelect, onClose, onImageSelect }) => {
         if (!response.ok) {
           throw new Error("Upload failed");
         }
-        setImagePreview(null)
-        setImage(null)
-        setImageAltTexts("")
+        setImagePreview(null);
+        setImage(null);
+        setImageAltTexts("");
         setCurrentPage(1);
-        fetchImages(`${process.env.NEXT_PUBLIC_API_URL}/media/img?limit=8&page=${currentPage}`)
-        
+        fetchImages(
+          `${process.env.NEXT_PUBLIC_API_URL}/media/img?limit=8&page=${currentPage}`
+        );
       } catch (error) {
         console.error("Error uploading file:", error);
         setError("Failed to upload image. Please try again.");
@@ -203,27 +207,40 @@ const ImageGalleryPopup = ({ onSelect, onClose, onImageSelect }) => {
               </div>
             ) : (
               <>
-                <div className="relative mb-6">
-                  <input
-                    type="text"
-                    placeholder="Search images..."
-                    className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                  <svg
-                    className="w-5 h-5 text-gray-400 absolute left-3 top-2.5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                <div className="relative mb-6 flex items-center gap-2">
+                  <div className="relative flex-1">
+                    <input
+                      type="text"
+                      placeholder="Search images..."
+                      className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          handleSearch();
+                        }
+                      }}
                     />
-                  </svg>
+                    <svg
+                      className="w-5 h-5 text-gray-400 absolute left-3 top-2.5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                      />
+                    </svg>
+                  </div>
+                  <button
+                    onClick={handleSearch}
+                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                  >
+                    Search
+                  </button>
                 </div>
 
                 <div className="flex-1 overflow-y-auto">

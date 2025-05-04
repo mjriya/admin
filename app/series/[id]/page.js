@@ -28,7 +28,6 @@ const Page = () => {
 
     fetchData()
   }, [currentPage, status]);
-  console.log("allSeriesPosts",allSeriesPosts)
   // Only execute scroll logic on the client
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);

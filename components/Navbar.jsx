@@ -9,7 +9,7 @@ import Cookies from "js-cookie";
 const Navbar = () => {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [userData, setUserData] = useState(null);
-
+ 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -22,14 +22,14 @@ const Navbar = () => {
         }
 
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/user`,
+          `${process.env.NEXT_PUBLIC_API_URL}/user/profile`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           }
         );
-        console.log("response", response);
+       
         // Check if the response is ok (status code 200-299)
         if (!response.ok) {
           throw new Error("Failed to fetch user data");
@@ -44,7 +44,6 @@ const Navbar = () => {
 
     fetchUserData();
   }, []);
-
   return (
     <nav className="fixed top-0 left-0 right-0 bg-[#f7f7f7] z-50">
       <div className="max-w-[2000px] mx-auto">
@@ -59,10 +58,10 @@ const Navbar = () => {
               onClick={() => setIsProfileModalOpen(true)}
               className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-gray-200 transition-colors"
             >
-              {userData?.data?.profile_picture ? (
+              {userData?.profile_picture ? (
                 <div className="w-[30px] h-[30px] relative">
                   <Image
-                    src={`${userData?.data?.profile_picture}`}
+                    src={`${userData?.profile_picture}`}
                     alt="Profile"
                     layout="fill"
                     objectFit="cover"
@@ -74,7 +73,7 @@ const Navbar = () => {
                 <FaUserCircle className="w-6 h-6 text-gray-600" />
               )}
               <span className="text-sm font-medium text-gray-700 capitalize">
-                {userData?.data?.name || "Loading..."}
+                {userData?.name || "Loading..."}
               </span>
             </button>
           </div>
@@ -82,7 +81,7 @@ const Navbar = () => {
       </div>
 
       {/* Profile Modal */}
-      <ProfileModal
+      {isProfileModalOpen && <ProfileModal
         isOpen={isProfileModalOpen}
         onClose={() => {
           setIsProfileModalOpen(false);
@@ -90,7 +89,7 @@ const Navbar = () => {
           const userId = localStorage.getItem("id");
           if (userId) {
             const token = Cookies.get("token");
-            fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/${userId}`, {
+            fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/profile`, {
               headers: {
                 Authorization: `Bearer ${token}`,
               },
@@ -101,7 +100,7 @@ const Navbar = () => {
           }
         }}
         userData={userData}
-      />
+      />}
     </nav>
   );
 };
