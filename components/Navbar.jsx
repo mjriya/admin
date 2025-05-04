@@ -29,13 +29,14 @@ const Navbar = () => {
             },
           }
         );
-       
+        console.log("Response:", response);
         // Check if the response is ok (status code 200-299)
         if (!response.ok) {
           throw new Error("Failed to fetch user data");
         }
 
         const data = await response.json();
+        console.log("User data:", data);
         setUserData(data);
       } catch (error) {
         console.error("Error fetching user data:", error);

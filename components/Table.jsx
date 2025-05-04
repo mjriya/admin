@@ -94,7 +94,7 @@ export default function Table({
     const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/content/search?title=${searchQuery}&type=${type}&status=${status}&page=1&limit=15`;
     fetchAllPostedData(apiUrl);
   };
-
+  console.log(posts, "articles");
   return (
     <>
       <>
@@ -228,12 +228,13 @@ export default function Table({
                     <td className="px-4 py-1">
                       <div className="text-sm text-gray-500">
                         {article.primary_category && (
-                          <div>{article.primary_category?.name}</div>
+                          <div>{article.primary_category[0]?.name}</div>
                         )}
                       </div>
                     </td>
                     <td className="px-4 py-1">
                       <div className="text-sm text-gray-500 ">
+                        <strong className="mr-2 capitalize">A : {article?.author.name},</strong>
                         {article.credits?.map((c, i) => (
                           <span key={i}>
                             {c?.name}
@@ -244,7 +245,10 @@ export default function Table({
                     </td>
                     <td className="px-4 text-center">
                       <div className="text-sm text-gray-500">
-                        {article.content && article.content.split(" ").length}
+                      {article.type === "series"
+  ? "This is Series"
+  : article.content?.split(" ").length}
+
                       </div>
                     </td>
                     <td className="px-4 py-3 text-center">
@@ -270,7 +274,7 @@ export default function Table({
                     </td>
                     <td className="px-4 text-center">
                       <div className="flex items-center justify-center gap-2">
-                        <button
+                        {/* <button
                           onClick={() => {
                             const url = `https://sportzpoint.com/${article.primary_category[0].slug}/${article.slug}`;
                             window.open(url, "_blank");
@@ -278,7 +282,7 @@ export default function Table({
                           className="p-1 text-gray-600 hover:text-yellow-600 transition-colors duration-150"
                         >
                           <FaEye className="w-4 h-4" />
-                        </button>
+                        </button> */}
                         <button
                           onClick={() => {
                             const views = article?.views ?? "0";
@@ -292,7 +296,7 @@ export default function Table({
                         >
                           <FaEdit className="w-4 h-4" />
                         </button>
-                        <button
+                        {/* <button
                           onClick={() => {
                             const url = `${process.env.NEXT_PUBLIC_API_URL2}/${article.primary_category[0].slug}/${article.slug}`;
                             navigator.clipboard
@@ -307,7 +311,7 @@ export default function Table({
                           className="p-1 text-gray-600 hover:text-yellow-600 transition-colors duration-150"
                         >
                           <GoLink className="w-4 h-4" />
-                        </button>
+                        </button> */}
                         {article &&
                           article.type &&
                           article.type === "LiveBlog" && (
