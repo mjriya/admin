@@ -5,10 +5,11 @@ import { useRouter } from "next/navigation";
 import useSidebarStore from "../store/useSidebarStore";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Cookies from 'js-cookie';
 
 const SeriesOfStories = ({ langue, isDropdownOpen }) => {
   const pathname = usePathname();
-
+  
   const [series, setSeries] = useState([]);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -18,16 +19,21 @@ const SeriesOfStories = ({ langue, isDropdownOpen }) => {
 
   const fetchSeries = async (option) => {
     setLoading(true);
+    const token = Cookies.get('token');
+
     try {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}/series/article`,
         {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
           params: {
             langue,
             search,
             page,
-            limit: 10,
-          },
+            limit: 5
+          }
         }
       );
 
