@@ -80,7 +80,7 @@ function ManagePostProperties() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [edting, setEdting] = useState(false);
 
-  const useDebouncedSubmit = (delay = 2000) => {
+  const useDebouncedSubmit = (delay = 15000) => {
     const debounceTimeout = useRef(null);
 
     const debounceSubmit = useCallback(

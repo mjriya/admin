@@ -19,11 +19,12 @@ export default function SeriesTable({
   status,
   fetchData,
   parentId,
+  loading
 }) {
   const searchParams = useSearchParams();
-
-  const { loading, fetchAllPostedData } = useAllPostDataStore();
-
+ 
+  const {  fetchAllPostedData } = useAllPostDataStore();
+ 
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery] = useState("");
@@ -45,13 +46,21 @@ export default function SeriesTable({
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  const handleFilterChange = (event) => {
-    setFilter(event.target.value);
-  };
 
-  const handleStartDateChange = (event) => {
-    setStartDate(event.target.value);
-  };
+
+  
+
+
+
+
+
+  // const handleFilterChange = (event) => {
+  //   setFilter(event.target.value);
+  // };
+
+  // const handleStartDateChange = (event) => {
+  //   setStartDate(event.target.value);
+  // };
   const handleDelete = async (id) => {
     try {
       const token = Cookies.get("token"); // Get token from cookies
@@ -77,23 +86,23 @@ export default function SeriesTable({
       console.error("Error during delete:", error.message);
     }
   };
-  const handleEndDateChange = (event) => {
-    setEndDate(event.target.value);
-  };
+  // const handleEndDateChange = (event) => {
+  //   setEndDate(event.target.value);
+  // };
 
-  const handleDateRangeChange = ({ startDate, endDate }) => {
-    // Handle the date range selection here
-    // Update your table data based on the selected date range
-  };
-  const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value);
-  };
+  // const handleDateRangeChange = ({ startDate, endDate }) => {
+  //   // Handle the date range selection here
+  //   // Update your table data based on the selected date range
+  // };
+  // const handleSearchChange = (e) => {
+  //   setSearchQuery(e.target.value);
+  // };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/content/search?title=${searchQuery}&type=${type}&status=${status}&page=1&limit=15`;
-    fetchAllPostedData(apiUrl);
-  };
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+  //   const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/content/search?title=${searchQuery}&type=${type}&status=${status}&page=1&limit=15`;
+  //   fetchAllPostedData(apiUrl);
+  // };
 
   return (
     <>
@@ -116,7 +125,8 @@ export default function SeriesTable({
                 +
               </button>
             </div>
-            <div className="flex items-center gap-4">
+
+            {/* <div className="flex items-center gap-4">
               <form className="border rounded" onSubmit={handleSubmit}>
                 <div className="search-bar flex">
                   <div className="relative">
@@ -138,7 +148,7 @@ export default function SeriesTable({
               </form>
 
               <CalendarModal onApply={handleDateRangeChange} />
-            </div>
+            </div> */}
           </div>
 
           <div className="flex mt-6 border-b gap-6 ">
@@ -194,7 +204,7 @@ export default function SeriesTable({
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Title
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {/* <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Categories
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -205,7 +215,7 @@ export default function SeriesTable({
                   </th>
                   <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                     SEO Score
-                  </th>
+                  </th> */}
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Timeline
                   </th>
@@ -221,11 +231,11 @@ export default function SeriesTable({
                     className="hover:bg-gray-50 transition-colors duration-150 "
                   >
                     <td className="px-4 py-0 ">
-                      <div className="text-sm font-medium text-gray-900 truncate max-w-md">
+                      <div className=" text-gray-900 truncate max-w-md capitalize py-2">
                         {article.title}
                       </div>
                     </td>
-                    <td className="px-4 py-1">
+                    {/* <td className="px-4 py-1">
                       <div className="text-sm text-gray-500">
                         {article.primary_category && (
                           <div>{article.primary_category?.name}</div>
@@ -246,8 +256,8 @@ export default function SeriesTable({
                       <div className="text-sm text-gray-500">
                         {article.content && article.content.split(" ").length}
                       </div>
-                    </td>
-                    <td className="px-4 py-3 text-center">
+                    </td> */}
+                    {/* <td className="px-4 py-3 text-center">
                       <span
                         className={`inline-flex px-2 text-xs font-medium rounded-full ${
                           article.seoScore === 100
@@ -257,7 +267,7 @@ export default function SeriesTable({
                       >
                         {10}
                       </span>
-                    </td>
+                    </td> */}
                     <td className="px-4 py-1">
                       <div className="text-sm text-gray-500">
                         {status === "pending-approval" ||
@@ -270,7 +280,7 @@ export default function SeriesTable({
                     </td>
                     <td className="px-4 text-center">
                       <div className="flex items-center justify-center gap-2">
-                        <button
+                        {/* <button
                           onClick={() => {
                             const url = `https://sportzpoint.com/${article.primary_category[0].slug}/${article.slug}`;
                             window.open(url, "_blank");
@@ -278,7 +288,7 @@ export default function SeriesTable({
                           className="p-1 text-gray-600 hover:text-yellow-600 transition-colors duration-150"
                         >
                           <FaEye className="w-4 h-4" />
-                        </button>
+                        </button> */}
                         <button
                           onClick={() => {
                             const views = article?.views ?? "0";
@@ -290,7 +300,7 @@ export default function SeriesTable({
                         >
                           <FaEdit className="w-4 h-4" />
                         </button>
-                        <button
+                        {/* <button
                           onClick={() => {
                             const url = `${process.env.NEXT_PUBLIC_API_URL2}/${article.primary_category[0].slug}/${article.slug}`;
                             navigator.clipboard
@@ -305,7 +315,7 @@ export default function SeriesTable({
                           className="p-1 text-gray-600 hover:text-yellow-600 transition-colors duration-150"
                         >
                           <GoLink className="w-4 h-4" />
-                        </button>
+                        </button> */}
 
                         <div className="bg-relative flex  ">
                           {postId === article._id && (

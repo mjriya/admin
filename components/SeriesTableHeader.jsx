@@ -14,11 +14,11 @@ const SeriesTableHeader = ({ totalPages, currentPage, onPageChange, type, loadin
         <div className="flex items-center justify-between">
           {/* Left Section */}
           <div className="flex items-center gap-3">
-           {type &&  <h2 className="text-lg font-semibold text-gray-900">{type} Posts</h2>}
+           {/* {type &&  <h2 className="text-lg font-semibold text-gray-900">{type} Posts</h2>} */}
             <div className="flex items-center gap-2">
             
               <span className="inline-flex items-center px-3 py-1 rounded-full bg-yellow-50 text-yellow-800 shadow">
-                {status === 'pending-approval' ? pendingApprovalCount : totalPostCount}
+                {/* {status === 'pending-approval' ? pendingApprovalCount : totalPostCount} */}
               </span>
             </div>
           </div>

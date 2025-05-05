@@ -126,7 +126,7 @@ function SeriesManagePostProperties({ child, parent }) {
 
   const debounceSubmit = useCallback((callback) => {
     if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
-    debounceTimeout.current = setTimeout(callback, 2000);
+    debounceTimeout.current = setTimeout(callback, 15000);
   }, []);
 
   useEffect(() => {

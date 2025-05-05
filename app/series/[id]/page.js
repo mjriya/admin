@@ -40,7 +40,6 @@ const Page = () => {
     setStatus(newStatus);
     setCurrentPage(1); // Reset to the first page when status changes
   };
-
   return (
     <div className=' min-h-screen'>
       <div className='max-w-7xl mx-auto p-4'>
